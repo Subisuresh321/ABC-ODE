@@ -30,6 +30,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/history/{user_id}/{problem_id}")
+async def get_history(user_id: str, problem_id: str):
+    try:
+        response = supabase.table("submissions") \
+            .select("created_at, status, speed_metaphor, execution_time") \
+            .eq("user_id", user_id) \
+            .eq("problem_id", problem_id) \
+            .order("created_at", desc=True) \
+            .limit(5) \
+            .execute()
+        return response.data
+    except Exception as e:
+        print(f"History Fetch Error: {e}")
+        return []
+
 @app.get("/mission/{mission_id}")  # <--- Added {mission_id}
 async def get_mission(mission_id: str): # <--- Added mission_id as an argument
     try:
@@ -46,7 +61,9 @@ async def get_mission(mission_id: str): # <--- Added mission_id as an argument
 async def run_code(payload: dict = Body(...)):
     start_time = time.time()
     code = payload.get("code")
-    test_cases = payload.get("test_cases")  # This is now your list from the DB
+    test_cases = payload.get("test_cases")
+    user_id = payload.get("user_id")      # Captured from payload
+    problem_id = payload.get("problem_id") # Captured from payload
     
     passed_count = 0
     total_tests = len(test_cases)
@@ -56,18 +73,13 @@ async def run_code(payload: dict = Body(...)):
         test_input = test["input"]
         expected_output = str(test["expected"])
 
-        # 1. We wrap test_input in a list [] so unpacking '*' always works correctly
-        # 2. We use a cleaner execution block
         full_code = f"""
 {code}
 try:
     args = [{test_input}]
-    # Handle the case where the input itself is a single tuple/list
     if len(args) == 1 and isinstance(args[0], (list, tuple)) and 'solve' in globals():
-        # This handles missions like The Tallest Stone [1,2,3]
         print(solve(args[0]))
     else:
-        # This handles missions like Magic Adder (10, 5)
         print(solve(*args))
 except Exception as e:
     print(f"PYTHON_ERROR: {{e}}")
@@ -75,7 +87,7 @@ except Exception as e:
         try:
             container_output = client.containers.run(
                 "python:3.12-slim",
-                command=["python", "-c", full_code], # Passing as a list is safer for shell escaping
+                command=["python", "-c", full_code],
                 remove=True,
                 network_disabled=True,
                 mem_limit="128m"
@@ -83,48 +95,59 @@ except Exception as e:
             
             actual_output = container_output.decode("utf-8").strip()
             
-            # Check if our internal try/except caught a Python error
             if "PYTHON_ERROR:" in actual_output:
-                results_log.append({
-                    "input": test_input, 
-                    "passed": False, 
-                    "error": actual_output.replace("PYTHON_ERROR: ", "")
-                })
+                results_log.append({"input": test_input, "passed": False, "error": actual_output})
                 continue 
 
             if actual_output == expected_output:
                 passed_count += 1
                 results_log.append({"input": test_input, "passed": True})
             else:
-                results_log.append({
-                    "input": test_input, 
-                    "passed": False, 
-                    "actual": actual_output, 
-                    "expected": expected_output
-                })
+                results_log.append({"input": test_input, "passed": False, "actual": actual_output, "expected": expected_output})
         except Exception as e:
             return {"status": "Error", "feedback": f"Sandbox error: {str(e)}"}
 
-    # Final verdict
     is_perfect = (passed_count == total_tests)
-    end_time = time.time() 
-    execution_duration = end_time - start_time
+    execution_duration = round(time.time() - start_time, 3)
     
     # Metaphor Logic
     if execution_duration < 0.2:
-        metaphor = "🐆 Cheetah Speed! (Super Fast)"
+        metaphor = "Cheetah"
     elif execution_duration < 0.5:
-        metaphor = "🏃 Human Runner Speed! (Good)"
+        metaphor = "Human"
     else:
-        metaphor = "🐌 Snail Pace! (A bit slow)"
+        metaphor = "Snail"
+
+    # --- NEW: SAVE TO DATABASE ---
+    try:
+        # Build the data object
+        log_entry = {
+            "user_id": user_id,
+            "problem_id": problem_id,
+            "source_code": code,
+            "status": "Success" if is_perfect else "Fail",
+            "passed_tests": passed_count,
+            "total_tests": total_tests,
+            "execution_time": float(execution_duration),
+            "speed_metaphor": metaphor,
+            "output": str(results_log)[:500]
+        }
+        
+        # Log it for debugging
+        print(f"🚀 Attempting DB Insert for User {user_id}")
+        
+        supabase.table("submissions").insert(log_entry).execute()
+        print("✅ SUCCESS: Added to Submissions table")
+    except Exception as e:
+        print(f"⚠️ History Log Failed: {e}")
 
     return {
         "status": "Success" if is_perfect else "Fail",
         "passed_tests": passed_count,
         "total_tests": total_tests,
         "results": results_log,
-        "speed_metaphor": metaphor, # Send this to Angular
-        "duration": round(execution_duration, 3)
+        "speed_metaphor": metaphor,
+        "duration": execution_duration
     }
     
 
@@ -148,7 +171,29 @@ async def add_xp(payload: dict = Body(...)):
     
     return {"status": "success", "new_xp": new_xp}
 
-
+@app.post("/mission")
+async def add_mission(payload: dict = Body(...)):
+    try:
+        response = supabase.table("problems").insert({
+            "title": payload.get("title"),
+            "story": payload.get("story"),
+            "category": payload.get("category"),
+            "difficulty": payload.get("difficulty"),
+            "starter_code": payload.get("starter_code"),
+            "test_cases": payload.get("test_cases"),
+            "xp_reward": int(payload.get("xp_reward", 0)), # Ensure this is an integer
+            "hints": [] # Explicitly send an empty list for hints
+        }).execute()
+        
+        return {"status": "success", "data": response.data}
+    except Exception as e:
+        # Check your terminal! This will tell you EXACTLY which column or value failed.
+        print("--- DATABASE ERROR ---")
+        print(e) 
+        print("-----------------------")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
