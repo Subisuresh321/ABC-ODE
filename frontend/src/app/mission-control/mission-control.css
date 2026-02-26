@@ -1,0 +1,79 @@
+.verdict-card { padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
+.verdict-card.Success { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+.verdict-card.Fail { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+
+.metaphor-badge {
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: white;
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 20px;
+  margin: 10px 0;
+}
+
+.test-grid { display: grid; gap: 10px; }
+.test-chip { padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; background: #eee; }
+.test-chip.pass { border-left: 5px solid #28a745; }
+.test-chip.fail { border-left: 5px solid #dc3545; }
+
+.mission-container { padding: 20px; max-width: 900px; margin: 0 auto; }
+.story-box { 
+  background: #f0f4f8; 
+  padding: 15px; 
+  border-radius: 8px; 
+  border-left: 5px solid #6200ee;
+  margin-bottom: 20px;
+}
+.editor-section { margin-bottom: 30px; }
+.launch-btn {
+  margin-top: 10px;
+  padding: 15px 30px;
+  background: #6200ee;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+.launch-btn:hover { background: #3700b3; }
+
+.history-container {
+  margin-top: 30px;
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 20px;
+  color: #ddd;
+}
+
+.history-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-header, .history-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+  align-items: center;
+}
+
+.history-header {
+  font-weight: bold;
+  color: #888;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.status-pass { color: #4caf50; font-weight: bold; }
+.status-fail { color: #f44336; }
+
+.metaphor-cell {
+  font-family: 'Courier New', Courier, monospace;
+  color: #00d4ff;
+}
+
+.date-cell { color: #666; font-size: 0.85rem; }

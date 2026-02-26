@@ -1,0 +1,40 @@
+<div class="admin-wrapper">
+  <section class="admin-section users-section">
+    <h3>👥 Hero Directory</h3>
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search by Hero Name...">
+    </div>
+    
+    <div class="user-list">
+      <div class="user-row header">
+        <span>Hero</span>
+        <span>XP</span>
+        <span>Action</span>
+      </div>
+      <div *ngFor="let user of filteredUsers" class="user-row">
+        <span class="u-name">{{ user.hero_name }}</span>
+        <span class="u-xp">{{ user.xp_points }}</span>
+        <button [routerLink]="['/profile', user.id]" class="audit-btn">Audit Code</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-section form-section">
+    <h3>🛠️ Mission Creator</h3>
+    <div class="form-group">
+      <label>Mission Title</label>
+      <input [(ngModel)]="newMission.title" placeholder="e.g. The Magic Adder">
+      
+      <label>Story / Instructions</label>
+      <textarea [(ngModel)]="newMission.story"></textarea>
+      
+      <label>Starter Code</label>
+      <textarea [(ngModel)]="newMission.starter_code" class="code-font"></textarea>
+      
+      <label>Test Cases</label>
+      <textarea [(ngModel)]="newMission.test_cases"></textarea>
+      
+      <button (click)="saveMission()" class="save-btn">SAVE MISSION</button>
+    </div>
+  </section>
+</div>

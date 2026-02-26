@@ -1,0 +1,123 @@
+.admin-wrapper {
+  display: flex;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  flex: 1; /* Both sections take equal space */
+  min-height: 600px;
+}
+
+/* LEFT SIDE: Hero Directory */
+.users-section {
+  border-top: 4px solid #6200ee;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 15px 10px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.user-row.header {
+  font-weight: bold;
+  color: #666;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.u-name { font-weight: 600; color: #333; }
+.u-xp { color: #6200ee; font-weight: bold; }
+
+.audit-btn {
+  background: #f3f0ff;
+  color: #6200ee;
+  border: 1px solid #6200ee;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.audit-btn:hover {
+  background: #6200ee;
+  color: white;
+}
+
+/* RIGHT SIDE: Mission Creator */
+.form-section {
+  border-top: 4px solid #03dab6;
+}
+
+.form-group label {
+  display: block;
+  margin: 15px 0 5px;
+  font-weight: 600;
+  color: #444;
+}
+
+.form-group input, 
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.code-font {
+  font-family: 'Courier New', Courier, monospace;
+  background: #f8f9fa;
+  color: #d63384;
+}
+
+.save-btn {
+  width: 100%;
+  margin-top: 25px;
+  padding: 15px;
+  background: #03dab6;
+  color: #003e33;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.save-btn:hover {
+  filter: brightness(0.9);
+  transform: translateY(-2px);
+}
+

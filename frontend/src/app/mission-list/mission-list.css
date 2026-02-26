@@ -1,0 +1,410 @@
+/* ═══════════════════════════════════════════════════════
+   INSPIRED BY: Duolingo · Scratch · Khan Academy Kids
+   KEY PATTERNS:
+     - Duolingo: thick offset-shadow "3D" buttons & cards
+     - Scratch: orange primary, white bg, big thumbnails
+     - Khan Academy: huge readable text, big tap targets
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ─── TOKENS ─── */
+:root {
+  --orange:       #FF6B00;   /* Scratch-signature orange */
+  --orange-dark:  #CC4D00;   /* button press shadow */
+  --orange-pale:  #FFF0E0;
+  --orange-soft:  #FFD4A8;
+  --yellow:       #FFC800;
+  --yellow-dark:  #C99A00;
+  --green:        #58CC02;   /* Duolingo green — Easy */
+  --green-dark:   #3E9901;
+  --red:          #FF4B4B;   /* Duolingo red — Hard */
+  --red-dark:     #C93636;
+  --blue:         #1CB0F6;   /* Duolingo blue */
+  --bg:           #FFFFFF;
+  --bg-page:      #FFF8F0;   /* warm white page */
+  --text:         #1A0A00;
+  --text-soft:    #7A4F2D;
+  --border:       #E8D5C0;
+  --r-card:       20px;
+  --r-pill:       100px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── PAGE ─── */
+.cyber-container {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-page) !important;
+  /* Subtle warm grid texture like a notebook */
+  background-image:
+    linear-gradient(rgba(255,180,80,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,180,80,.06) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+  font-family: 'Nunito', sans-serif;
+  color: var(--text);
+  padding: 32px 36px 64px;
+}
+
+/* ─── HEADER ─── */
+.hero-header {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Daily tip — Duolingo-style streak bar */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--yellow);
+  border: 3px solid var(--yellow-dark);
+  border-radius: var(--r-pill);
+  padding: 6px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 0 var(--yellow-dark);  /* Duolingo 3D press */
+}
+.pulse-dot {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--orange);
+  flex-shrink: 0;
+  animation: pop 1.6s ease-in-out infinite;
+}
+@keyframes pop {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.35); }
+}
+.daily-tip {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+}
+
+/* Big welcome — Boogaloo = Khan Academy Kids vibe */
+.glitch-text {
+  font-family: 'Boogaloo', cursive !important;
+  font-size: clamp(2.8rem, 6vw, 4.2rem) !important;
+  font-weight: 400 !important;   /* Boogaloo is naturally bold */
+  color: var(--text) !important;
+  line-height: 1.1;
+  cursor: pointer;
+  animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.hero-highlight {
+  color: var(--orange) !important;
+  display: inline-block;
+  position: relative;
+}
+/* Wavy crayon-stroke underline */
+.hero-highlight::after {
+  content: '';
+  position: absolute;
+  left: -2px; right: -2px;
+  bottom: -6px; height: 7px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8'%3E%3Cpath d='M0,4 C10,1 20,7 30,4 C40,1 50,7 60,4 C70,1 80,7 90,4 C100,1 110,7 120,4' fill='none' stroke='%23FFC800' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x center;
+  background-size: 60px 7px;
+}
+
+.subtitle {
+  margin-top: 12px;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: var(--text-soft) !important;
+}
+
+@keyframes bounceIn {
+  from { opacity: 0; transform: scale(0.8) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/*
+ * 🖼️ IMAGE SLOT 1 — HERO MASCOT
+ * Add after <p class="subtitle"> in mission-list.html:
+ *   <img src="assets/mascot-rocket.gif" class="hero-mascot" alt="Rocket">
+ * Best: animated GIF, transparent bg, ~180×180px
+ * Try: lottiefiles.com → search "rocket" or "astronaut"
+ */
+.hero-mascot {
+  width: 180px; height: 180px;
+  object-fit: contain;
+  margin-top: 16px;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 20px rgba(255,107,0,.2));
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+/* ─── LAYOUT ─── */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 28px;
+}
+@media (max-width: 860px) {
+  .main-layout { grid-template-columns: 1fr; }
+}
+
+/* ─── SECTION HEADER ─── */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.section-title h2 {
+  font-family: 'Boogaloo', cursive !important;
+  font-size: 1.7rem !important;
+  color: var(--orange) !important;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.title-line {
+  flex: 1; height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--orange-soft), transparent);
+}
+
+/* ─── MISSION GRID ─── */
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 18px;
+}
+
+/* ─── MISSION CARD — Duolingo 3D card style ─── */
+.glass-card {
+  background: var(--bg) !important;
+  border: 3px solid var(--border) !important;
+  border-radius: var(--r-card) !important;
+  padding: 0 !important;          /* thumb needs full bleed */
+  cursor: pointer;
+  /* THE KEY Duolingo trick: solid offset bottom shadow = feels physical */
+  box-shadow: 0 6px 0 var(--border) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+  overflow: hidden;
+  animation: cardPop 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+  display: flex;
+  flex-direction: column;
+}
+.mission-grid .glass-card:nth-child(1) { animation-delay:.04s }
+.mission-grid .glass-card:nth-child(2) { animation-delay:.09s }
+.mission-grid .glass-card:nth-child(3) { animation-delay:.13s }
+.mission-grid .glass-card:nth-child(4) { animation-delay:.18s }
+.mission-grid .glass-card:nth-child(5) { animation-delay:.22s }
+.mission-grid .glass-card:nth-child(6) { animation-delay:.27s }
+@keyframes cardPop {
+  from { opacity:0; transform:scale(0.8) translateY(16px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+
+/* Pressed state — Duolingo "click" feel */
+.glass-card:hover {
+  transform: translateY(3px) !important;
+  box-shadow: 0 3px 0 var(--border) !important;
+  border-color: var(--orange-soft) !important;
+}
+.glass-card:active {
+  transform: translateY(6px) !important;
+  box-shadow: 0 0px 0 var(--border) !important;
+}
+
+/* Remove the glow div — not needed here */
+.card-glow { display: none; }
+
+/*
+ * 🖼️ IMAGE SLOT 2 — MISSION THUMBNAIL (per card)
+ * Add inside *ngFor card, right after <div class="card-glow">:
+ *   <img [src]="m.thumbnail || 'assets/mission-default.png'"
+ *        class="card-thumb" [alt]="m.title">
+ * Best: colorful illustration per category, 16:9, ~400×220px PNG
+ * You can map category → image:  e.g. "Python" → python-snake-cartoon.png
+ */
+.card-thumb {
+  width: 100%;
+  height: 118px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 3px solid var(--border);
+  background: var(--orange-pale); /* fallback if no image */
+}
+
+/* Card body padding */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 6px;
+}
+
+.category {
+  font-size: 0.67rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--orange) !important;
+  background: var(--orange-pale);
+  border: 2px solid var(--orange-soft);
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+}
+
+/* Difficulty — Duolingo color language */
+.difficulty {
+  font-size: 0.67rem;
+  font-weight: 900;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid;
+}
+.difficulty[data-level="easy"],
+.difficulty[data-level="Easy"]   { color:#fff !important; background:var(--green);  border-color:var(--green-dark); }
+.difficulty[data-level="medium"],
+.difficulty[data-level="Medium"] { color:#fff !important; background:var(--orange); border-color:var(--orange-dark); }
+.difficulty[data-level="hard"],
+.difficulty[data-level="Hard"]   { color:#fff !important; background:var(--red);    border-color:var(--red-dark); }
+
+.glass-card h3 {
+  font-family: 'Nunito', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  padding: 6px 16px 14px !important;
+  line-height: 1.35;
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px 16px;
+}
+
+.xp-badge {
+  font-family: 'Boogaloo', cursive;
+  font-size: 0.95rem;
+  color: var(--orange) !important;
+  background: var(--orange-pale);
+  border: 2px solid var(--orange-soft);
+  padding: 5px 13px;
+  border-radius: var(--r-pill);
+  box-shadow: 0 3px 0 var(--orange-soft);
+}
+
+/* Duolingo-style 3D button */
+.launch-btn {
+  font-family: 'Boogaloo', cursive;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  color: #fff !important;
+  background: var(--orange);
+  border: 3px solid var(--orange-dark);
+  border-radius: var(--r-pill);
+  padding: 7px 20px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--orange-dark);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.launch-btn:hover   { transform: translateY(2px); box-shadow: 0 3px 0 var(--orange-dark); }
+.launch-btn:active  { transform: translateY(5px); box-shadow: 0 0   0 var(--orange-dark); }
+
+/* ─── LOADING ─── */
+.loading-state { text-align:center; padding:60px 20px; }
+.scanner-line {
+  width:180px; height:5px;
+  border-radius:5px;
+  background: linear-gradient(90deg, transparent, var(--orange), transparent);
+  margin:0 auto 20px;
+  animation: scan 1.4s ease-in-out infinite;
+}
+@keyframes scan {
+  0%,100%{ transform:scaleX(.25); opacity:.4; }
+  50%    { transform:scaleX(1);   opacity:1; }
+}
+.loading-state p {
+  font-family:'Boogaloo',cursive !important;
+  font-size:1.2rem !important;
+  color:var(--orange) !important;
+  letter-spacing:2px;
+  animation: blink 1.4s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ─── SIDEBAR ─── */
+.sidebar { position:relative; }
+
+.glass-sidebar {
+  background: var(--bg) !important;
+  border: 3px solid var(--border) !important;
+  border-radius: var(--r-card) !important;
+  padding: 24px !important;
+  box-shadow: 0 6px 0 var(--border) !important;
+  position: sticky;
+  top: 24px;
+}
+
+/*
+ * 🖼️ IMAGE SLOT 3 — SIDEBAR TROPHY / CHARACTER
+ * Add at the very top inside .glass-sidebar, before <h3>:
+ *   <img src="assets/trophy.gif" class="sidebar-mascot" alt="Trophy">
+ * Best: animated spinning trophy or star GIF, ~90×90px
+ * Try: lottiefiles.com → "trophy" or "stars"
+ */
+.sidebar-mascot {
+  width:90px; height:90px;
+  object-fit:contain;
+  display:block;
+  margin:0 auto 12px;
+  animation:float 3s ease-in-out infinite;
+}
+
+.glass-sidebar h3 {
+  font-family:'Boogaloo',cursive !important;
+  font-size:1.4rem !important;
+  color:var(--orange) !important;
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.leaderboard-list { display:flex; flex-direction:column; gap:8px; }
+
+.leader-row {
+  display:grid;
+  grid-template-columns:34px 1fr auto;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:14px;
+  background: var(--bg-page);
+  border: 2px solid var(--border);
+  /* Duolingo 3D row */
+  box-shadow: 0 3px 0 var(--border);
+  cursor:pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.leader-row:hover { transform:translateY(2px); box-shadow:0 1px 0 var(--border); }
+
+/* Gold / Silver / Bronze */
+.leader-row:nth-child(1) { border-color:#F5C518; box-shadow:0 3px 0 #C99A00; background:#FFFAE8; }
+.leader-row:nth-child(2) { border-color:#B0B0B0; box-shadow:0 3px 0 #888;    background:#F8F8F8; }
+.leader-row:nth-child(3) { border-color:#D4894A; box-shadow:0 3px 0 #A0522D; background:#FFF4EC; }
+.leader-row:nth-child(1) .rank { color:#C99A00 !important; }
+.leader-row:nth-child(2) .rank { color:#767676 !important; }
+.leader-row:nth-child(3) .rank { color:#A0522D !important; }
+
+.rank  { font-family:'Boogaloo',cursive; font-size:1.1rem; color:var(--text-soft) !important; }
+.name  { font-weight:800; font-size:.9rem; color:var(--text) !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.xp    { font-family:'Boogaloo',cursive; font-size:.9rem; color:var(--orange) !important; white-space:nowrap; }
+
+/* ─── RESET over-aggressive global rule ─── */
+h1,h2,h3,p,span,div { color:inherit; }

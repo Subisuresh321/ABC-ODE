@@ -1,0 +1,58 @@
+<div class="profile-container" *ngIf="heroData">
+  <nav class="nav-header">
+    <button class="back-button" (click)="goBack()">
+      {{ userRole === 'admin' ? '⬅ Back to Command Center' : '⬅ Back to Lobby' }}
+    </button>
+  </nav>
+
+  <div class="profile-layout">
+     </div>
+</div>
+<div class="profile-container" *ngIf="heroData">
+  <header class="hero-header">
+    <div class="hero-identity">
+      <div class="avatar">{{ heroData.identity.hero_name[0] }}</div>
+      <div class="name-box">
+        <h1>{{ heroData.identity.hero_name }}</h1>
+        <p>Member since: {{ heroData.identity.created_at | date }}</p>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="val">{{ heroData.submissions.length }}</span>
+        <span class="lbl">Missions Solved</span>
+      </div>
+      <div class="stat-item">
+        <span class="val">{{ heroData.identity.xp_points }}</span>
+        <span class="lbl">Total XP</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="profile-content">
+    <aside class="submission-list">
+      <h3>Mission Logs</h3>
+      <div *ngFor="let sub of heroData.submissions" 
+           (click)="selectedSub = sub" 
+           class="log-card" 
+           [class.active]="selectedSub?.id === sub.id">
+        <div class="log-info">
+          <strong>{{ sub.problems.title }}</strong>
+          <small>{{ sub.problems.category }} • {{ sub.speed_metaphor }}</small>
+        </div>
+        <span class="difficulty-dot" [attr.data-diff]="sub.problems.difficulty"></span>
+      </div>
+    </aside>
+
+    <main class="code-view" *ngIf="selectedSub">
+      <div class="view-header">
+        <h3>Source Code: {{ selectedSub.problems.title }}</h3>
+        <span class="time-stamp">Executed: {{ selectedSub.created_at | date:'short' }}</span>
+      </div>
+      <ngx-codemirror
+        [(ngModel)]="selectedSub.source_code"
+        [options]="readonlyOptions">
+      </ngx-codemirror>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+<div class="cyber-container">
+  <header class="hero-header">
+    <div class="welcome-text">
+
+      <div class="status-indicator">
+        <span class="pulse-dot"></span>
+        <p class="daily-tip">{{ dailyTip }}</p>
+      </div>
+
+      <h1 class="glitch-text" [routerLink]="['/profile', currentUserId]">
+        Welcome back, <span class="hero-highlight">{{ heroName }}</span>!
+      </h1>
+      <p class="subtitle">The galaxy needs your code. Pick a mission to begin! 🚀</p>
+
+      <!--
+        🖼️ IMAGE SLOT 1 — HERO MASCOT (header)
+        Uncomment and set your src:
+        <img src="assets/mascot-rocket.gif" class="hero-mascot" alt="Rocket">
+        ✅ Best: animated GIF, transparent background, ~180×180px
+        🔗 Get free ones at: lottiefiles.com (search "rocket" or "astronaut kid")
+      -->
+
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <section class="mission-section">
+      <div class="section-title">
+        <h2>⭐ MISSIONS</h2>
+        <div class="title-line"></div>
+      </div>
+
+      <div class="mission-grid">
+        <div *ngFor="let m of missions" class="glass-card" [routerLink]="['/mission', m.id]">
+
+          <!--
+            🖼️ IMAGE SLOT 2 — MISSION CARD THUMBNAIL
+            Uncomment and set your src:
+            <img [src]="m.thumbnail || 'assets/mission-default.png'" class="card-thumb" [alt]="m.title">
+            ✅ Best: one colorful cartoon per category, ~400×220px PNG
+            💡 Map category name → image file:
+               "Python"  → assets/thumb-python.png  (cartoon snake)
+               "HTML"    → assets/thumb-html.png    (cartoon browser)
+               "Loops"   → assets/thumb-loops.png   (cartoon repeat arrows)
+            🔗 Free illustrations: storyset.com / undraw.co / icons8.com/illustrations
+          -->
+
+          <div class="card-header">
+            <span class="category">{{ m.category }}</span>
+            <span class="difficulty" [attr.data-level]="m.difficulty">{{ m.difficulty }}</span>
+          </div>
+          <h3>{{ m.title }}</h3>
+          <div class="card-footer">
+            <span class="xp-badge">⚡ {{ m.xp_reward || 50 }} XP</span>
+            <button class="launch-btn">START!</button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="missions.length === 0" class="loading-state">
+        <div class="scanner-line"></div>
+        <p>LOADING MISSIONS...</p>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="glass-sidebar">
+
+        <!--
+          🖼️ IMAGE SLOT 3 — LEADERBOARD MASCOT
+          Uncomment and set your src:
+          <img src="assets/trophy.gif" class="sidebar-mascot" alt="Trophy">
+          ✅ Best: animated spinning trophy or cheering character GIF, ~90×90px
+          🔗 Get free ones at: lottiefiles.com (search "trophy" or "winner")
+        -->
+
+        <h3>🏆 HALL OF HEROES</h3>
+        <div class="leaderboard-list">
+          <div
+            class="leader-row"
+            *ngFor="let hero of leaderboard; let i = index"
+            [routerLink]="['/profile', hero.id]"
+          >
+            <span class="rank">#{{ i + 1 }}</span>
+            <span class="name">{{ hero.hero_name || 'Recruit' }}</span>
+            <span class="xp">{{ hero.xp_points }} ⚡</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

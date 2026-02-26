@@ -1,0 +1,14 @@
+<div class="auth-container">
+  <h2>{{ isLogin ? 'Hero Login' : 'Join the Academy' }}</h2>
+  
+  <input [(ngModel)]="email" type="email" placeholder="Email">
+  <input [(ngModel)]="password" type="password" placeholder="Password">
+  
+  <button (click)="handleAuth()">
+    {{ isLogin ? 'Enter ABC-ODE' : 'Create My Hero' }}
+  </button>
+  
+  <p (click)="isLogin = !isLogin">
+    {{ isLogin ? "Don't have a hero? Register here" : "Already a hero? Login here" }}
+  </p>
+</div>

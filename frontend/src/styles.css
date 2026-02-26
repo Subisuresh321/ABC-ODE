@@ -1,0 +1,16 @@
+/* styles.css – global */
+@import "codemirror/lib/codemirror.css";
+@import "codemirror/theme/material.css";   /* light theme better for kids */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Nunito', 'Comic Neue', sans-serif;
+  background-color: #FFF8F0;          /* very light warm off-white */
+  color: #1F0F00;
+}
+
+/* Optional: make code editor friendlier */
+.cm-s-material .CodeMirror-gutters { background: #FFF8F0; }
+.cm-s-material .CodeMirror-linenumber { color: #888; }

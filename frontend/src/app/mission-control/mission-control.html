@@ -1,0 +1,65 @@
+<div class="mission-container" *ngIf="mission; else loading">
+  <div class="briefing">
+    <h1>Mission: {{ mission.title }}</h1>
+    <p class="category-tag">{{ mission.category }}</p>
+    <div class="story-box">
+      <p>{{ mission.story }}</p>
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <ngx-codemirror
+      [(ngModel)]="mission.starter_code"
+      [options]="codeMirrorOptions">
+    </ngx-codemirror>
+    
+    <button class="launch-btn" (click)="runCode()">
+      🚀 LAUNCH CODE!
+    </button>
+    <div class="history-container" *ngIf="submissionHistory && submissionHistory.length > 0">
+  <h3>📜 Mission History (Your Speed Journey)</h3>
+  <div class="history-grid">
+    <div class="history-header">
+      <span>Result</span>
+      <span>Complexity / Speed</span>
+      <span>Duration</span>
+      <span>Time</span>
+    </div>
+    
+    <div class="history-row" *ngFor="let run of submissionHistory">
+      <span [class]="run.status === 'Success' ? 'status-pass' : 'status-fail'">
+        {{ run.status === 'Success' ? '✅ Pass' : '❌ Fail' }}
+      </span>
+      <span class="metaphor-cell">
+        {{ run.speed_metaphor === 'Cheetah' ? '🐆 Cheetah' : 
+           run.speed_metaphor === 'Human' ? '🏃 Human' : '🐌 Snail' }}
+      </span>
+      <span>{{ run.execution_time }}s</span>
+      <span class="date-cell">{{ run.created_at | date:'shortTime' }}</span>
+    </div>
+  </div>
+</div>
+  </div>
+
+  <div class="mission-status" *ngIf="runResult">
+    <div class="verdict-card" [ngClass]="runResult.status">
+      <h2>{{ runResult.status === 'Success' ? 'MISSION ACCOMPLISHED! 🚀' : 'TRY AGAIN, HERO! 🛠️' }}</h2>
+      <div class="metaphor-badge">{{ runResult.speed_metaphor }}</div>
+    <p>Time taken: {{ runResult.duration }} seconds</p>
+    </div>
+
+    <div class="test-grid">
+      <div *ngFor="let res of runResult.results" class="test-chip" [ngClass]="res.passed ? 'pass' : 'fail'">
+        <span>{{ res.passed ? '⭐' : '☁️' }}</span>
+        <code>In: {{ res.input }}</code>
+        <span *ngIf="!res.passed"> - Expected {{ res.expected }}, got {{ res.actual }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="loading-screen">
+    <p>🛰️ Connecting to Mission Control...</p>
+  </div>
+</ng-template>

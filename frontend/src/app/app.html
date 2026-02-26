@@ -1,0 +1,21 @@
+<nav class="navbar" *ngIf="isLoggedIn">
+  <h1 routerLink="/">🚀 ABC-ODE</h1>
+  
+  <div class="user-stats">
+    <div class="hero-info">
+      <span class="rank">Lvl 1</span>
+      <span class="name">{{ heroName }}</span>
+    </div>
+    
+    <div class="xp-container">
+      <div class="xp-bar-mini">
+        <div class="xp-fill" [style.width.%]="30"></div>
+      </div>
+      <small>{{ xp }} XP</small>
+    </div>
+
+    <button class="logout-link" (click)="logout()">Logout 🚪</button>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>

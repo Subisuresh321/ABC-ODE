@@ -1,0 +1,73 @@
+.profile-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+.hero-identity { display: flex; align-items: center; gap: 20px; }
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  background: #6200ee;
+  color: white;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.hero-stats { display: flex; gap: 40px; }
+.stat-item { text-align: center; }
+.stat-item .val { display: block; font-size: 1.5rem; font-weight: bold; color: #6200ee; }
+.stat-item .lbl { font-size: 0.8rem; color: #666; text-transform: uppercase; }
+
+.profile-content { display: flex; gap: 30px; min-height: 500px; }
+
+.submission-list { flex: 1; background: white; border-radius: 12px; padding: 20px; }
+.log-card {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.log-card.active { border-left: 4px solid #6200ee; background: #f3f0ff; }
+
+.code-view { flex: 2; background: #282a36; border-radius: 12px; overflow: hidden; }
+.view-header { padding: 15px 20px; background: #1e1e1e; color: white; display: flex; justify-content: space-between; }
+
+.nav-header {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 2rem;
+}
+
+.back-button {
+  background: transparent;
+  color: #03dab6; /* Your cyberpunk secondary color */
+  border: 1px solid #03dab6;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: #03dab6;
+  color: #121212;
+  box-shadow: 0 0 10px #03dab6;
+}
