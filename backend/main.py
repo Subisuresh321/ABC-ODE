@@ -30,6 +30,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/admin/users")
+async def get_all_users():
+    try:
+        # Fetch all heroes, sorted by XP
+        response = supabase.table("profiles") \
+            .select("id, hero_name, xp_points, updated_at") \
+            .order("xp_points", desc=True) \
+            .execute()
+        return response.data
+    except Exception as e:
+        print(f"Admin User Fetch Error: {e}")
+        raise HTTPException(status_code=500, detail="Could not retrieve the hero directory.")
+    
+
+
 @app.get("/history/{user_id}/{problem_id}")
 async def get_history(user_id: str, problem_id: str):
     try:
@@ -76,11 +92,14 @@ async def run_code(payload: dict = Body(...)):
         full_code = f"""
 {code}
 try:
-    args = [{test_input}]
+    args = [x.strip() for x in "{test_input}".split(",")]
+    args = [int(x) if x.isdigit() else x for x in args]
     if len(args) == 1 and isinstance(args[0], (list, tuple)) and 'solve' in globals():
         print(solve(args[0]))
     else:
-        print(solve(*args))
+        result = solve(*args)
+        if result is not None:
+            print(result)
 except Exception as e:
     print(f"PYTHON_ERROR: {{e}}")
 """
@@ -175,10 +194,15 @@ async def add_xp(payload: dict = Body(...)):
 @app.get("/profile/{user_id}")
 async def get_profile(user_id: str):
     try:
-        response = supabase.table("profiles").select("hero_name").eq("id", user_id).single().execute()
+        # Include 'role' in the selection
+        response = supabase.table("profiles") \
+            .select("hero_name, role") \
+            .eq("id", user_id) \
+            .single() \
+            .execute()
         return response.data
     except Exception as e:
-        return {"hero_name": "Commander"} # Fallback if not found
+        return {"hero_name": "Commander", "role": "student"}
     
 @app.get("/user-profile/{user_id}")
 async def get_public_profile(user_id: str):
