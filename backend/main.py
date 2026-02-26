@@ -171,6 +171,56 @@ async def add_xp(payload: dict = Body(...)):
     
     return {"status": "success", "new_xp": new_xp}
 
+
+@app.get("/profile/{user_id}")
+async def get_profile(user_id: str):
+    try:
+        response = supabase.table("profiles").select("hero_name").eq("id", user_id).single().execute()
+        return response.data
+    except Exception as e:
+        return {"hero_name": "Commander"} # Fallback if not found
+    
+@app.get("/user-profile/{user_id}")
+async def get_public_profile(user_id: str):
+    try:
+        # Fetch profile using columns we KNOW exist in your screenshot
+        profile_res = supabase.table("profiles") \
+            .select("hero_name, xp_points, updated_at") \
+            .eq("id", user_id) \
+            .execute()
+        
+        if not profile_res.data:
+            print(f"ID {user_id} not found in Profiles table")
+            raise HTTPException(status_code=404, detail="Hero not found!")
+
+        # Fetch submissions
+        subs_res = supabase.table("latest_user_submissions") \
+            .select("*, problems(title, category, difficulty)") \
+            .eq("user_id", user_id) \
+            .execute()
+            
+        return {
+            "identity": profile_res.data[0],
+            "submissions": subs_res.data or []
+        }
+    except Exception as e:
+        print(f"DATABASE ERROR: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/leaderboard")
+async def get_leaderboard():
+    try:
+        # We MUST include "id" here so the frontend can link to the profile!
+        response = supabase.table("profiles") \
+            .select("id, hero_name, xp_points, avatar_url") \
+            .order("xp_points", desc=True) \
+            .limit(10) \
+            .execute()
+        return response.data
+    except Exception as e:
+        print(f"Leaderboard Error: {e}")
+        return []
+
 @app.post("/mission")
 async def add_mission(payload: dict = Body(...)):
     try:
