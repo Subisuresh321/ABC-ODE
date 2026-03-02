@@ -1,58 +1,97 @@
-<div class="profile-container" *ngIf="heroData">
+<div class="profile-container" *ngIf="heroData; else loading">
+  
+  <!-- Back Navigation -->
   <nav class="nav-header">
     <button class="back-button" (click)="goBack()">
-      {{ userRole === 'admin' ? '⬅ Back to Command Center' : '⬅ Back to Lobby' }}
+      {{ userRole === 'admin' ? '⬅ BACK TO COMMAND CENTER' : '⬅ BACK TO LOBBY' }}
     </button>
   </nav>
 
-  <div class="profile-layout">
-     </div>
-</div>
-<div class="profile-container" *ngIf="heroData">
+  <!-- Hero Header -->
   <header class="hero-header">
     <div class="hero-identity">
       <div class="avatar">{{ heroData.identity.hero_name[0] }}</div>
       <div class="name-box">
         <h1>{{ heroData.identity.hero_name }}</h1>
-        <p>Member since: {{ heroData.identity.created_at | date }}</p>
+        <p>📅 Member since {{ formatDate(heroData.identity.created_at) }}</p>
       </div>
     </div>
+
     <div class="hero-stats">
       <div class="stat-item">
         <span class="val">{{ heroData.submissions.length }}</span>
-        <span class="lbl">Missions Solved</span>
+        <span class="lbl">MISSIONS SOLVED</span>
       </div>
       <div class="stat-item">
         <span class="val">{{ heroData.identity.xp_points }}</span>
-        <span class="lbl">Total XP</span>
+        <span class="lbl">TOTAL XP ⚡</span>
       </div>
     </div>
   </header>
 
+  <!-- Main Content -->
   <div class="profile-content">
+    
+    <!-- Mission Log Sidebar -->
     <aside class="submission-list">
-      <h3>Mission Logs</h3>
-      <div *ngFor="let sub of heroData.submissions" 
-           (click)="selectedSub = sub" 
-           class="log-card" 
-           [class.active]="selectedSub?.id === sub.id">
+      <h3>
+        <span>📋 MISSION LOGS</span>
+        <span class="badge">{{ heroData.submissions.length }}</span>
+      </h3>
+
+      <div *ngFor="let sub of heroData.submissions"
+           class="log-card"
+           [class.active]="selectedSub?.id === sub.id"
+           (click)="selectSubmission(sub)">
         <div class="log-info">
           <strong>{{ sub.problems.title }}</strong>
-          <small>{{ sub.problems.category }} • {{ sub.speed_metaphor }}</small>
+          <small>
+            {{ sub.problems.category }} • {{ getMetaphorEmoji(sub.speed_metaphor) }} {{ sub.speed_metaphor || 'Unknown' }}
+          </small>
         </div>
-        <span class="difficulty-dot" [attr.data-diff]="sub.problems.difficulty"></span>
+        <div class="difficulty-indicator">
+          <span class="difficulty-dot" [attr.data-diff]="sub.problems.difficulty"></span>
+          <span class="difficulty-text" [style.color]="getDifficultyColor(sub.problems.difficulty)">
+            {{ sub.problems.difficulty || 'Unknown' }}
+          </span>
+        </div>
       </div>
     </aside>
 
+    <!-- Code Viewer -->
     <main class="code-view" *ngIf="selectedSub">
       <div class="view-header">
-        <h3>Source Code: {{ selectedSub.problems.title }}</h3>
-        <span class="time-stamp">Executed: {{ selectedSub.created_at | date:'short' }}</span>
+        <h3>
+          <span>{{ selectedSub.problems.title }}</span>
+          <span class="difficulty-badge" [style.background]="getDifficultyColor(selectedSub.problems.difficulty)">
+            {{ selectedSub.problems.difficulty }}
+          </span>
+        </h3>
+        <span class="time-stamp">
+          ⏱️ {{ formatDate(selectedSub.created_at) }}
+        </span>
       </div>
+
       <ngx-codemirror
         [(ngModel)]="selectedSub.source_code"
         [options]="readonlyOptions">
       </ngx-codemirror>
     </main>
+
+    <!-- Empty State -->
+    <main class="code-view empty-state" *ngIf="!selectedSub">
+      <div>🛸</div>
+      <p>Select a mission log to view the code!</p>
+      <p class="hint">Click on any mission from the list to see your solution</p>
+    </main>
+
   </div>
 </div>
+
+<!-- Loading State -->
+<ng-template #loading>
+  <div class="loading-screen">
+    <p>👤 LOADING HERO PROFILE...</p>
+    <div class="loading-animation">✨</div>
+  </div>
+</ng-template>

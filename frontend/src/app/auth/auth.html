@@ -1,14 +1,126 @@
 <div class="auth-container">
-  <h2>{{ isLogin ? 'Hero Login' : 'Join the Academy' }}</h2>
+  <!-- Decorative stars -->
+  <div class="star-decoration star-1">⭐</div>
+  <div class="star-decoration star-2">🌟</div>
+  <div class="star-decoration star-3">✨</div>
   
-  <input [(ngModel)]="email" type="email" placeholder="Email">
-  <input [(ngModel)]="password" type="password" placeholder="Password">
+  <h2>
+    {{ isLogin ? '🚀 HERO LOGIN' : '🎓 JOIN THE ACADEMY' }}
+  </h2>
   
-  <button (click)="handleAuth()">
-    {{ isLogin ? 'Enter ABC-ODE' : 'Create My Hero' }}
+  <!-- Error Message -->
+  <div class="error-message" *ngIf="errorMessage">
+    <span>⚠️</span> {{ errorMessage }}
+  </div>
+  
+  <!-- Success Message (for registration) -->
+  <div class="success-message" *ngIf="successMessage">
+    <span>✅</span> {{ successMessage }}
+  </div>
+  
+  <!-- Email Input -->
+  <div class="input-group">
+    <span class="input-icon">📧</span>
+    <input 
+      [(ngModel)]="email" 
+      type="email" 
+      placeholder="Enter your email"
+      [disabled]="isLoading"
+      (input)="validateEmail()">
+  </div>
+  <div class="input-hint" *ngIf="!isLogin && email && !isEmailValid">
+    ⚡ Please enter a valid email address
+  </div>
+  
+  <!-- Password Input with Eye Toggle -->
+  <div class="input-group">
+    <span class="input-icon">🔐</span>
+    <input 
+      [(ngModel)]="password" 
+      [type]="showPassword ? 'text' : 'password'" 
+      placeholder="Enter your password"
+      [disabled]="isLoading"
+      (input)="validatePassword()">
+    <span class="password-toggle" (click)="togglePasswordVisibility()">
+      {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+    </span>
+  </div>
+  
+  <!-- Password Rules (only show in register mode) -->
+  <div class="password-rules" *ngIf="!isLogin">
+    <div class="rule-item" [class.rule-met]="hasMinLength">
+      <span class="rule-icon">{{ hasMinLength ? '✅' : '⭕' }}</span>
+      <span class="rule-text">At least 8 characters</span>
+    </div>
+    <div class="rule-item" [class.rule-met]="hasUpperCase">
+      <span class="rule-icon">{{ hasUpperCase ? '✅' : '⭕' }}</span>
+      <span class="rule-text">One uppercase letter</span>
+    </div>
+    <div class="rule-item" [class.rule-met]="hasLowerCase">
+      <span class="rule-icon">{{ hasLowerCase ? '✅' : '⭕' }}</span>
+      <span class="rule-text">One lowercase letter</span>
+    </div>
+    <div class="rule-item" [class.rule-met]="hasNumber">
+      <span class="rule-icon">{{ hasNumber ? '✅' : '⭕' }}</span>
+      <span class="rule-text">One number</span>
+    </div>
+    <div class="rule-item" [class.rule-met]="hasSpecialChar">
+      <span class="rule-icon">{{ hasSpecialChar ? '✅' : '⭕' }}</span>
+      <span class="rule-text">One special character (!@#$%^&*)</span>
+    </div>
+    
+    <!-- Password Strength Meter -->
+    <div class="strength-meter" *ngIf="password">
+      <div class="strength-bar-container">
+        <div class="strength-bar" 
+             [style.width.%]="passwordStrength.percentage"
+             [style.background]="passwordStrength.color">
+        </div>
+      </div>
+      <div class="strength-text" [style.color]="passwordStrength.color">
+        {{ passwordStrength.label }}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Confirm Password (only in register mode) -->
+  <div class="input-group" *ngIf="!isLogin">
+    <span class="input-icon">🔒</span>
+    <input 
+      [(ngModel)]="confirmPassword" 
+      [type]="showConfirmPassword ? 'text' : 'password'" 
+      placeholder="Confirm your password"
+      [disabled]="isLoading"
+      (input)="validateConfirmPassword()">
+    <span class="password-toggle" (click)="toggleConfirmPasswordVisibility()">
+      {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+    </span>
+  </div>
+  <div class="input-hint" *ngIf="!isLogin && confirmPassword && !doPasswordsMatch">
+    ⚡ Passwords do not match
+  </div>
+  
+  <!-- Submit Button -->
+  <button 
+    class="auth-button" 
+    (click)="handleAuth()"
+    [disabled]="isLoading || !isFormValid()">
+    <span *ngIf="!isLoading">
+      {{ isLogin ? '🚀 ENTER SPACE ACADEMY' : '✨ CREATE MY HERO' }}
+    </span>
+    <span *ngIf="isLoading" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+      <span class="loading-spinner"></span>
+      {{ isLogin ? 'LAUNCHING...' : 'CREATING...' }}
+    </span>
   </button>
   
-  <p (click)="isLogin = !isLogin">
-    {{ isLogin ? "Don't have a hero? Register here" : "Already a hero? Login here" }}
+  <!-- Toggle between Login/Register -->
+  <p class="toggle-text" (click)="!isLoading && toggleMode()">
+    {{ isLogin ? "⭐ Don't have a hero? Register here" : "🦸 Already a hero? Login here" }}
+  </p>
+  
+  <!-- Fun fact / motivational message -->
+  <p style="margin-top: 20px; font-size: 0.9rem; color: #7F8C8D; font-weight: 600; position: relative; z-index: 2;">
+    {{ getMotivationalMessage() }}
   </p>
 </div>

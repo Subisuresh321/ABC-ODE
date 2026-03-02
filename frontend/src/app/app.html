@@ -2,19 +2,21 @@
   <h1 routerLink="/">🚀 ABC-ODE</h1>
   
   <div class="user-stats">
-    <div class="hero-info">
-      <span class="rank">Lvl 1</span>
+    <div class="hero-info" [routerLink]="['/profile', currentUserId]" *ngIf="currentUserId" style="cursor: pointer;">
+      <span class="greeting">👋 Hi,</span>
       <span class="name">{{ heroName }}</span>
     </div>
     
-    <div class="xp-container">
-      <div class="xp-bar-mini">
-        <div class="xp-fill" [style.width.%]="30"></div>
-      </div>
-      <small>{{ xp }} XP</small>
-    </div>
+    <!-- <div class="xp-display">
+      <span class="xp-icon">⚡</span>
+      <span class="xp-value">{{ xp }}</span>
+      <span class="xp-label">XP</span>
+    </div> -->
 
-    <button class="logout-link" (click)="logout()">Logout 🚪</button>
+    <button class="logout-link" (click)="logout()">
+      <span class="logout-icon">🚪</span>
+      <span class="logout-text">LOG OUT</span>
+    </button>
   </div>
 </nav>
 

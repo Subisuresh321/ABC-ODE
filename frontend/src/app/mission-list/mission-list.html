@@ -1,89 +1,95 @@
-<div class="cyber-container">
-  <header class="hero-header">
-    <div class="welcome-text">
-
-      <div class="status-indicator">
-        <span class="pulse-dot"></span>
-        <p class="daily-tip">{{ dailyTip }}</p>
+<div class="kids-dashboard">
+  
+  <!-- Hero Section -->
+  <header class="dashboard-hero">
+    <div class="welcome-box">
+      <div class="tip-pill" *ngIf="dailyTip">
+        <span class="icon">💡</span> {{ dailyTip }}
       </div>
-
-      <h1 class="glitch-text" [routerLink]="['/profile', currentUserId]">
-        Welcome back, <span class="hero-highlight">{{ heroName }}</span>!
-      </h1>
-      <p class="subtitle">The galaxy needs your code. Pick a mission to begin! 🚀</p>
-
-      <!--
-        🖼️ IMAGE SLOT 1 — HERO MASCOT (header)
-        Uncomment and set your src:
-        <img src="assets/mascot-rocket.gif" class="hero-mascot" alt="Rocket">
-        ✅ Best: animated GIF, transparent background, ~180×180px
-        🔗 Get free ones at: lottiefiles.com (search "rocket" or "astronaut kid")
-      -->
-
+      
+      <h2 class="font-kids" style="font-size: 2.5rem; margin-top: 0.5rem;">
+        Hi, <span class="text-orange cursor-pointer hover:underline" [routerLink]="['/profile', currentUserId]">
+          {{ heroName }}
+        </span>! 👋
+      </h2>
+      <p style="font-size: 1.3rem; color: #5D6D7E; font-weight: 800;">Ready to save the galaxy with code?</p>
     </div>
+
+    <!-- <div class="stats-box">
+      <div class="stat-item">
+        <span class="stat-label">LEVEL</span>
+        <span class="stat-value">{{ getLevel(xp) }}</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-label">XP</span>
+        <span class="stat-value">{{ xp }}</span>
+      </div>
+    </div> -->
   </header>
 
-  <div class="main-layout">
-    <section class="mission-section">
-      <div class="section-title">
-        <h2>⭐ MISSIONS</h2>
-        <div class="title-line"></div>
+  <!-- Rest of your template remains the same -->
+  <div class="dashboard-grid">
+    <!-- Missions Section -->
+    <main class="mission-section">
+      <h3 class="font-kids">⭐ ACTIVE MISSIONS</h3>
+      
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-spinner">
+        🚀 Loading missions...
       </div>
-
-      <div class="mission-grid">
-        <div *ngFor="let m of missions" class="glass-card" [routerLink]="['/mission', m.id]">
-
-          <!--
-            🖼️ IMAGE SLOT 2 — MISSION CARD THUMBNAIL
-            Uncomment and set your src:
-            <img [src]="m.thumbnail || 'assets/mission-default.png'" class="card-thumb" [alt]="m.title">
-            ✅ Best: one colorful cartoon per category, ~400×220px PNG
-            💡 Map category name → image file:
-               "Python"  → assets/thumb-python.png  (cartoon snake)
-               "HTML"    → assets/thumb-html.png    (cartoon browser)
-               "Loops"   → assets/thumb-loops.png   (cartoon repeat arrows)
-            🔗 Free illustrations: storyset.com / undraw.co / icons8.com/illustrations
-          -->
-
-          <div class="card-header">
-            <span class="category">{{ m.category }}</span>
-            <span class="difficulty" [attr.data-level]="m.difficulty">{{ m.difficulty }}</span>
+      
+      <!-- Missions Grid -->
+      <div *ngIf="!isLoading" class="mission-cards-container">
+        <div *ngFor="let m of missions" class="mission-card-3d" [routerLink]="['/mission', m.id]">
+          <div class="card-top" [ngClass]="m.difficulty?.toLowerCase()">
+            <span class="emoji">{{ m.emoji || getRandomEmoji() }}</span>
           </div>
-          <h3>{{ m.title }}</h3>
-          <div class="card-footer">
-            <span class="xp-badge">⚡ {{ m.xp_reward || 50 }} XP</span>
-            <button class="launch-btn">START!</button>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="tag-pill">{{ m.category || 'Mission' }}</span>
+              <span class="difficulty-badge" [ngClass]="m.difficulty?.toLowerCase()">
+                {{ m.difficulty || 'Easy' }}
+              </span>
+            </div>
+            <h4 class="font-black">{{ m.title || 'New Mission' }}</h4>
+            <div class="card-footer">
+              <span class="xp-tag">⚡ {{ m.xp_reward || 100 }} XP</span>
+              <button class="btn-play">PLAY ➔</button>
+            </div>
           </div>
         </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="missions.length === 0" class="no-missions">
+          🌟 No missions yet! Check back soon!
+        </div>
       </div>
+    </main>
 
-      <div *ngIf="missions.length === 0" class="loading-state">
-        <div class="scanner-line"></div>
-        <p>LOADING MISSIONS...</p>
-      </div>
-    </section>
-
-    <aside class="sidebar">
-      <div class="glass-sidebar">
-
-        <!--
-          🖼️ IMAGE SLOT 3 — LEADERBOARD MASCOT
-          Uncomment and set your src:
-          <img src="assets/trophy.gif" class="sidebar-mascot" alt="Trophy">
-          ✅ Best: animated spinning trophy or cheering character GIF, ~90×90px
-          🔗 Get free ones at: lottiefiles.com (search "trophy" or "winner")
-        -->
-
-        <h3>🏆 HALL OF HEROES</h3>
-        <div class="leaderboard-list">
-          <div
-            class="leader-row"
-            *ngFor="let hero of leaderboard; let i = index"
-            [routerLink]="['/profile', hero.id]"
-          >
-            <span class="rank">#{{ i + 1 }}</span>
-            <span class="name">{{ hero.hero_name || 'Recruit' }}</span>
-            <span class="xp">{{ hero.xp_points }} ⚡</span>
+    <!-- Leaderboard Section -->
+    <aside class="leaderboard-section">
+      <h3 class="font-kids">🏅 HALL OF HEROES</h3>
+      <div class="leaderboard-card">
+        <div class="hero-list">
+          <!-- Loading State -->
+          <div *ngIf="isLoading" style="text-align: center; padding: 20px;">
+            ⭐ Loading heroes...
+          </div>
+          
+          <!-- Leaderboard List -->
+          <div *ngFor="let hero of leaderboard; let i = index" 
+               class="hero-row cursor-pointer"
+               [routerLink]="['/profile', hero.id]">
+            <span class="hero-rank">#{{ i + 1 }}</span>
+            <span class="hero-name">{{ hero.hero_name || 'Unknown Hero' }}</span>
+            <span class="hero-xp">{{ hero.xp_points || 0 }}</span>
+          </div>
+          
+          <!-- Empty State -->
+          <div *ngIf="leaderboard.length === 0 && !isLoading" 
+               style="text-align: center; padding: 30px; font-weight: 800; color: #7F8C8D;">
+            🏆 No heroes yet! Be the first!
           </div>
         </div>
       </div>
