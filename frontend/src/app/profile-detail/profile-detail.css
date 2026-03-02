@@ -1,73 +1,369 @@
+/* profile-detail.css - Kid-Friendly Version */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
 .profile-container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f9f4e8 0%, #fff9f0 100%);
+  min-height: calc(100vh - 80px);
 }
 
+/* Navigation Header */
+.nav-header {
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+}
+
+/* Hero Header Card */
 .hero-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
   background: white;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  margin-bottom: 30px;
+  border: 4px solid #FFB347;
+  border-radius: 60px;
+  box-shadow: 0 12px 0 #E67E22, 0 15px 25px rgba(0,0,0,0.1);
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
 }
 
-.hero-identity { display: flex; align-items: center; gap: 20px; }
+.hero-header::before {
+  content: "⭐";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  font-size: 8rem;
+  opacity: 0.1;
+  transform: rotate(20deg);
+}
+
+.hero-identity {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
 
 .avatar {
-  width: 80px;
-  height: 80px;
-  background: #6200ee;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #FF8C42, #FF6B00);
   color: white;
-  font-size: 2rem;
+  font-family: 'Fredoka One', cursive;
+  font-size: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-weight: bold;
+  border: 5px solid #FFD4A8;
+  box-shadow: 0 8px 0 #C55A11;
+  text-shadow: 4px 4px 0 #C55A11;
+  animation: float 3s ease-in-out infinite;
 }
 
-.hero-stats { display: flex; gap: 40px; }
-.stat-item { text-align: center; }
-.stat-item .val { display: block; font-size: 1.5rem; font-weight: bold; color: #6200ee; }
-.stat-item .lbl { font-size: 0.8rem; color: #666; text-transform: uppercase; }
+.name-box h1 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.5rem;
+  margin: 0 0 4px;
+  color: #2C3E50;
+  text-shadow: 4px 4px 0 #FFE5A3;
+}
 
-.profile-content { display: flex; gap: 30px; min-height: 500px; }
+.name-box p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #7F8C8D;
+  background: #F0F0F0;
+  padding: 5px 15px;
+  border-radius: 40px;
+  display: inline-block;
+  border: 2px solid #D5D5D5;
+}
 
-.submission-list { flex: 1; background: white; border-radius: 12px; padding: 20px; }
+/* Hero Stats */
+.hero-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  background: linear-gradient(145deg, #FFF3E0, #FFE5B4);
+  border: 3px solid #FFB347;
+  border-radius: 40px;
+  padding: 16px 24px;
+  min-width: 120px;
+  box-shadow: 0 8px 0 #E67E22;
+}
+
+.stat-item .val {
+  display: block;
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.5rem;
+  color: #FF6B00;
+  line-height: 1;
+  text-shadow: 3px 3px 0 #FFD4A8;
+}
+
+.stat-item .lbl {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #5D6D7E;
+  margin-top: 5px;
+}
+
+/* Content Layout */
+.profile-content {
+  display: flex;
+  gap: 30px;
+  min-height: 600px;
+}
+
+/* Submission List */
+.submission-list {
+  flex: 0 0 320px;
+  background: white;
+  border: 4px solid #A569BD;
+  border-radius: 50px;
+  box-shadow: 0 12px 0 #6C3483, 0 15px 25px rgba(0,0,0,0.1);
+  padding: 25px;
+  overflow-y: auto;
+  max-height: 700px;
+}
+
+.submission-list h3 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.8rem;
+  color: #2C3E50;
+  margin: 0 0 20px;
+  text-shadow: 3px 3px 0 #F7DC6F;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .log-card {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
+  padding: 20px;
+  border-radius: 40px;
+  border: 3px solid #E0E0E0;
+  margin-bottom: 15px;
   cursor: pointer;
-  transition: background 0.2s;
-}
-.log-card.active { border-left: 4px solid #6200ee; background: #f3f0ff; }
-
-.code-view { flex: 2; background: #282a36; border-radius: 12px; overflow: hidden; }
-.view-header { padding: 15px 20px; background: #1e1e1e; color: white; display: flex; justify-content: space-between; }
-
-.nav-header {
-  padding: 1rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 2rem;
+  transition: all 0.2s;
+  background: #F8F9FA;
+  position: relative;
+  overflow: hidden;
 }
 
-.back-button {
-  background: transparent;
-  color: #03dab6; /* Your cyberpunk secondary color */
-  border: 1px solid #03dab6;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
+.log-card:hover {
+  transform: translateX(5px) translateY(-2px);
+  border-color: #FFB347;
+  box-shadow: 0 8px 0 #E67E22;
 }
 
-.back-button:hover {
-  background: #03dab6;
-  color: #121212;
-  box-shadow: 0 0 10px #03dab6;
+.log-card.active {
+  border-color: #FF8C42;
+  background: #FFF3E0;
+  box-shadow: 0 8px 0 #C55A11;
+  transform: scale(1.02);
+}
+
+.log-info strong {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #2C3E50;
+  margin-bottom: 8px;
+}
+
+.log-info small {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #7F8C8D;
+  margin-bottom: 10px;
+}
+
+/* Difficulty Indicators */
+.difficulty-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.difficulty-dot {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+}
+
+.difficulty-dot[data-diff="Easy"] { 
+  background: #2ECC71;
+  box-shadow: 0 3px 0 #1E8449;
+}
+
+.difficulty-dot[data-diff="Medium"] { 
+  background: #F39C12;
+  box-shadow: 0 3px 0 #B36B00;
+}
+
+.difficulty-dot[data-diff="Hard"] { 
+  background: #E74C3C;
+  box-shadow: 0 3px 0 #A93226;
+}
+
+.difficulty-text {
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: white;
+  border: 2px solid currentColor;
+}
+
+/* Code Viewer */
+.code-view {
+  flex: 1;
+  background: white;
+  border: 4px solid #FF8C42;
+  border-radius: 50px;
+  box-shadow: 0 12px 0 #C55A11, 0 15px 25px rgba(0,0,0,0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: linear-gradient(145deg, #FFF3E0, #FFE5B4);
+  border-bottom: 4px solid #FFB347;
+}
+
+.view-header h3 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  margin: 0;
+  color: #2C3E50;
+  text-shadow: 2px 2px 0 #FFD4A8;
+}
+
+.time-stamp {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #5D6D7E;
+  background: white;
+  padding: 8px 18px;
+  border-radius: 40px;
+  border: 2px solid #FFB347;
+  box-shadow: 0 4px 0 #E67E22;
+}
+
+/* Empty State */
+.empty-state {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 60px;
+  text-align: center;
+  background: linear-gradient(145deg, #F8F9FA, #FFFFFF);
+}
+
+.empty-state div:first-child {
+  font-size: 6rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-state p {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.8rem;
+  color: #7F8C8D;
+  text-shadow: 3px 3px 0 #E0E0E0;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .profile-content {
+    flex-direction: column;
+  }
+  
+  .submission-list {
+    flex: none;
+    max-height: 400px;
+  }
+  
+  .hero-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .hero-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* Add these missing styles */
+.badge {
+  font-size: 1rem;
+  background: #FF8C42;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 40px;
+  margin-left: 10px;
+}
+
+.difficulty-badge {
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 30px;
+  color: white;
+  margin-left: 15px;
+  border: 2px solid white;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+}
+
+.hint {
+  font-size: 1rem;
+  color: #95A5A6;
+  margin-top: 10px;
+}
+
+.loading-animation {
+  font-size: 3rem;
+  margin-top: 20px;
+  animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Ensure CodeMirror has proper height */
+::ng-deep .CodeMirror {
+  height: 400px !important;
+  border-radius: 0 0 30px 30px !important;
 }

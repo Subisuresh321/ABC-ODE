@@ -1,65 +1,94 @@
 <div class="mission-container" *ngIf="mission; else loading">
+  
+  <!-- Back Button -->
+  <button class="back-button" (click)="goBack()">
+    ⬅ BACK TO MISSIONS
+  </button>
+
+  <!-- Briefing Section -->
   <div class="briefing">
-    <h1>Mission: {{ mission.title }}</h1>
-    <p class="category-tag">{{ mission.category }}</p>
+    <h1>🚀 {{ mission.title }}</h1>
+    <span class="category-tag">{{ mission.category }}</span>
     <div class="story-box">
       <p>{{ mission.story }}</p>
     </div>
   </div>
 
+  <!-- Editor Section -->
   <div class="editor-section">
     <ngx-codemirror
       [(ngModel)]="mission.starter_code"
       [options]="codeMirrorOptions">
     </ngx-codemirror>
     
-    <button class="launch-btn" (click)="runCode()">
-      🚀 LAUNCH CODE!
+    <button class="launch-btn" (click)="runCode()" [disabled]="isRunning">
+      {{ isRunning ? '🚀 LAUNCHING...' : '🚀 LAUNCH CODE!' }}
     </button>
-    <div class="history-container" *ngIf="submissionHistory && submissionHistory.length > 0">
-  <h3>📜 Mission History (Your Speed Journey)</h3>
-  <div class="history-grid">
-    <div class="history-header">
-      <span>Result</span>
-      <span>Complexity / Speed</span>
-      <span>Duration</span>
-      <span>Time</span>
-    </div>
-    
-    <div class="history-row" *ngFor="let run of submissionHistory">
-      <span [class]="run.status === 'Success' ? 'status-pass' : 'status-fail'">
-        {{ run.status === 'Success' ? '✅ Pass' : '❌ Fail' }}
-      </span>
-      <span class="metaphor-cell">
-        {{ run.speed_metaphor === 'Cheetah' ? '🐆 Cheetah' : 
-           run.speed_metaphor === 'Human' ? '🏃 Human' : '🐌 Snail' }}
-      </span>
-      <span>{{ run.execution_time }}s</span>
-      <span class="date-cell">{{ run.created_at | date:'shortTime' }}</span>
-    </div>
-  </div>
-</div>
   </div>
 
+  <!-- Results Section - MOVED OUTSIDE editor-section -->
   <div class="mission-status" *ngIf="runResult">
     <div class="verdict-card" [ngClass]="runResult.status">
-      <h2>{{ runResult.status === 'Success' ? 'MISSION ACCOMPLISHED! 🚀' : 'TRY AGAIN, HERO! 🛠️' }}</h2>
-      <div class="metaphor-badge">{{ runResult.speed_metaphor }}</div>
-    <p>Time taken: {{ runResult.duration }} seconds</p>
+      <h2>{{ runResult.status === 'Success' ? '🎉 MISSION ACCOMPLISHED!' : '💪 TRY AGAIN, HERO!' }}</h2>
+      <div class="metaphor-badge" *ngIf="runResult.speed_metaphor">
+        {{ getMetaphorEmoji(runResult.speed_metaphor) }} {{ runResult.speed_metaphor }} SPEED!
+      </div>
+      <p style="font-size: 1.3rem; font-weight: 800;">⏱️ Time taken: {{ runResult.duration || runResult.execution_time }} seconds</p>
     </div>
 
     <div class="test-grid">
-      <div *ngFor="let res of runResult.results" class="test-chip" [ngClass]="res.passed ? 'pass' : 'fail'">
-        <span>{{ res.passed ? '⭐' : '☁️' }}</span>
-        <code>In: {{ res.input }}</code>
-        <span *ngIf="!res.passed"> - Expected {{ res.expected }}, got {{ res.actual }}</span>
+      <div *ngFor="let res of runResult.results; let i = index" 
+           class="test-chip" 
+           [ngClass]="res.passed ? 'pass' : 'fail'">
+        <span>{{ res.passed ? '✅' : '❌' }}</span>
+        <span>Test #{{ i + 1 }}</span>
+        <code>Input: {{ res.input }}</code>
+        <span *ngIf="!res.passed">
+          → Expected: {{ res.expected }}, Got: {{ res.actual }}
+        </span>
+        <span *ngIf="res.passed" style="color: #2ECC71; font-weight: 900;">
+          ✓ Passed!
+        </span>
       </div>
     </div>
+  </div>
+
+  <!-- History Section - MOVED OUTSIDE editor-section -->
+  <div class="history-container" *ngIf="submissionHistory && submissionHistory.length > 0">
+    <h3>
+      <span>📜 MISSION HISTORY</span>
+      <span class="attempts-badge">{{ submissionHistory.length }} attempts</span>
+    </h3>
+    <div class="history-grid">
+      <div class="history-header">
+        <span>RESULT</span>
+        <span>SPEED RATING</span>
+        <span>DURATION</span>
+        <span>TIME</span>
+      </div>
+      
+      <div class="history-row" *ngFor="let run of submissionHistory">
+        <span [class]="run.status === 'Success' ? 'status-pass' : 'status-fail'">
+          {{ run.status === 'Success' ? '✅ PASS' : '❌ FAIL' }}
+        </span>
+        <span class="metaphor-cell">
+          {{ getMetaphorEmoji(run.speed_metaphor) }} {{ run.speed_metaphor || 'Unknown' }}
+        </span>
+        <span>{{ run.execution_time }}s</span>
+        <span class="date-cell">{{ run.created_at | date:'shortTime' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP Success Message -->
+  <div *ngIf="showSuccessMessage" class="success-popup">
+    🎉 +{{ mission?.xp_reward }} XP EARNED! 🎉
   </div>
 </div>
 
 <ng-template #loading>
   <div class="loading-screen">
-    <p>🛰️ Connecting to Mission Control...</p>
+    <p>🛸 PREPARING MISSION BRIEFING...</p>
+    <p style="font-size: 1rem; margin-top: 20px;">Loading mission data from space command...</p>
   </div>
 </ng-template>

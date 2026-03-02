@@ -1,16 +1,94 @@
 /* styles.css – global */
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;600;700;800;900&display=swap');
 @import "codemirror/lib/codemirror.css";
-@import "codemirror/theme/material.css";   /* light theme better for kids */
+@import "codemirror/theme/eclipse.css"; /* light theme for kids */
 
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Nunito', 'Comic Neue', sans-serif;
-  background-color: #FFF8F0;          /* very light warm off-white */
-  color: #1F0F00;
+:root {
+  --kids-orange:       #FF6B00;
+  --kids-orange-dark:  #CC4D00;
+  --kids-orange-light: #FFF0E0;
+  --kids-teal:         #03DAB6;
+  --kids-bg:           #FFF8F0;
+  --kids-card-border:  #E8D5C0;
+  --kids-card-shadow:  #DEC8B0;
+  --kids-text:         #4A3728;
+  --kids-text-muted:   #9C8070;
 }
 
-/* Optional: make code editor friendlier */
-.cm-s-material .CodeMirror-gutters { background: #FFF8F0; }
-.cm-s-material .CodeMirror-linenumber { color: #888; }
+body {
+  margin: 0;
+  background-color: var(--kids-bg);
+  background-image: radial-gradient(circle at 2px 2px, rgba(255,107,0,0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+  font-family: 'Nunito', sans-serif;
+  color: var(--kids-text);
+}
+
+h1, h2, h3, h4, .font-kids {
+  font-family: 'Boogaloo', cursive;
+  letter-spacing: 0.02em;
+}
+
+/* ── Code editor – light & friendly ── */
+.CodeMirror {
+  font-size: 14px;
+  height: 100%;
+  border-radius: 0 0 20px 20px;
+}
+.cm-s-eclipse .CodeMirror-gutters {
+  background: #FFF8F0;
+  border-right: 2px solid var(--kids-card-border);
+}
+.cm-s-eclipse .CodeMirror-linenumber { color: var(--kids-text-muted); }
+.cm-s-eclipse .CodeMirror-selected  { background: #FFE8CC; }
+
+/* ── Shared utility classes ── */
+.btn-3d {
+  position: relative;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-3d:active { transform: translateY(3px); }
+
+.card-3d {
+  background: white;
+  border: 3px solid var(--kids-card-border);
+  border-radius: 24px;
+  box-shadow: 0 8px 0 var(--kids-card-shadow);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.card-3d:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 13px 0 var(--kids-card-shadow);
+  border-color: #FFD4A8;
+}
+
+.tag-pill {
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--kids-orange-light);
+  color: var(--kids-orange);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #FFD4A8;
+}
+
+.launch-btn-3d {
+  width: 100%;
+  padding: 12px;
+  background: var(--kids-orange);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  border-bottom: 5px solid var(--kids-orange-dark);
+  font-family: 'Boogaloo', cursive;
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.launch-btn-3d:hover  { background: #FF7A1A; }
+.launch-btn-3d:active { transform: translateY(3px); border-bottom-width: 2px; }

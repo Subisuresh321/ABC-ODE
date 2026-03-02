@@ -1,79 +1,435 @@
-.verdict-card { padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
-.verdict-card.Success { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-.verdict-card.Fail { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+.mission-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f9f4e8 0%, #fff9f0 100%);
+  min-height: calc(100vh - 80px);
+}
 
-.metaphor-badge {
-  font-size: 1.2rem;
-  font-weight: bold;
+/* Briefing Section */
+.briefing {
   background: white;
+  border-radius: 50px;
+  border: 4px solid #A569BD;
+  box-shadow: 0 12px 0 #6C3483, 0 15px 25px rgba(0,0,0,0.1);
+  padding: 30px;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.briefing::before {
+  content: "🚀";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  font-size: 8rem;
+  opacity: 0.1;
+  transform: rotate(15deg);
+}
+
+.briefing h1 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.5rem;
+  color: #2C3E50;
+  text-shadow: 4px 4px 0 #F7DC6F;
+  margin-bottom: 10px;
+}
+
+.category-tag {
   display: inline-block;
-  padding: 5px 15px;
-  border-radius: 20px;
-  margin: 10px 0;
-}
-
-.test-grid { display: grid; gap: 10px; }
-.test-chip { padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; background: #eee; }
-.test-chip.pass { border-left: 5px solid #28a745; }
-.test-chip.fail { border-left: 5px solid #dc3545; }
-
-.mission-container { padding: 20px; max-width: 900px; margin: 0 auto; }
-.story-box { 
-  background: #f0f4f8; 
-  padding: 15px; 
-  border-radius: 8px; 
-  border-left: 5px solid #6200ee;
+  background: #F0F0F0;
+  padding: 8px 25px;
+  border-radius: 40px;
+  font-weight: 800;
+  color: #4A4A4A;
+  border: 3px solid #D5D5D5;
+  box-shadow: 0 5px 0 #B0B0B0;
   margin-bottom: 20px;
-}
-.editor-section { margin-bottom: 30px; }
-.launch-btn {
-  margin-top: 10px;
-  padding: 15px 30px;
-  background: #6200ee;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
   font-size: 1.1rem;
 }
-.launch-btn:hover { background: #3700b3; }
 
-.history-container {
-  margin-top: 30px;
-  background: #1e1e1e;
-  border-radius: 8px;
+.story-box {
+  background: linear-gradient(145deg, #E8F0FE, #D4E6FF);
+  padding: 25px;
+  border-radius: 40px;
+  border: 4px solid #3498DB;
+  box-shadow: 0 8px 0 #2874A6;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #1B4F72;
+  font-weight: 600;
+  position: relative;
+}
+
+.story-box::before {
+  content: "📖";
+  position: absolute;
+  top: -15px;
+  left: 30px;
+  font-size: 2rem;
+  background: white;
+  padding: 5px 15px;
+  border-radius: 40px;
+  border: 3px solid #3498DB;
+}
+
+/* Editor Section */
+.editor-section {
+  background: white;
+  border-radius: 50px;
+  border: 4px solid #FF8C42;
+  box-shadow: 0 12px 0 #C55A11, 0 15px 25px rgba(0,0,0,0.1);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+/* CodeMirror Customization */
+::ng-deep .CodeMirror {
+  border-radius: 30px !important;
+  border: 4px solid #FFB347 !important;
+  font-size: 14px !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+.launch-btn {
+  margin-top: 20px;
+  padding: 18px 40px;
+  background: linear-gradient(145deg, #FF8C42, #FF6B00);
+  color: white;
+  border: none;
+  border-radius: 60px;
+  font-weight: 900;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border: 4px solid white;
+  box-shadow: 0 10px 0 #C55A11;
+  text-shadow: 3px 3px 0 #C55A11;
+  letter-spacing: 2px;
+  width: 100%;
+  transition: all 0.2s;
+  font-family: 'Fredoka One', cursive;
+}
+
+.launch-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 0 #C55A11;
+  background: linear-gradient(145deg, #FF9F5C, #FF7B1C);
+}
+
+.launch-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 5px 0 #C55A11;
+}
+
+/* Verdict Card */
+.verdict-card {
+  padding: 30px;
+  border-radius: 50px;
+  text-align: center;
+  margin-bottom: 25px;
+  border: 4px solid white;
+  box-shadow: 0 10px 0 rgba(0,0,0,0.1);
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.verdict-card.Success {
+  background: linear-gradient(145deg, #D4EDDA, #A9DFBF);
+  color: #155724;
+  border-color: #2ECC71;
+}
+
+.verdict-card.Fail {
+  background: linear-gradient(145deg, #F8D7DA, #F5B7B1);
+  color: #721C24;
+  border-color: #E74C3C;
+}
+
+.verdict-card h2 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.metaphor-badge {
+  font-size: 2rem;
+  font-weight: 900;
+  background: white;
+  display: inline-block;
+  padding: 15px 40px;
+  border-radius: 60px;
+  margin: 15px 0;
+  border: 4px solid currentColor;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+}
+
+/* Test Grid */
+.test-grid {
+  display: grid;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.test-chip {
   padding: 20px;
-  color: #ddd;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  border: 3px solid #E0E0E0;
+  box-shadow: 0 5px 0 #B0B0B0;
+  font-size: 1.1rem;
+  transition: transform 0.2s;
+}
+
+.test-chip:hover {
+  transform: translateX(5px);
+}
+
+.test-chip.pass {
+  border-left: 15px solid #2ECC71;
+  background: #F0FFF4;
+}
+
+.test-chip.fail {
+  border-left: 15px solid #E74C3C;
+  background: #FFF0F0;
+}
+
+.test-chip span:first-child {
+  font-size: 2rem;
+}
+
+.test-chip code {
+  background: #2C3E50;
+  color: #FFD966;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+}
+
+/* History Section */
+.history-container {
+  margin-top: 40px;
+  background: linear-gradient(145deg, #2C3E50, #1E2B38);
+  border-radius: 50px;
+  padding: 25px;
+  color: white;
+  border: 4px solid #FFB347;
+  box-shadow: 0 12px 0 #C55A11;
+}
+
+.history-container h3 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2rem;
+  margin-bottom: 25px;
+  text-shadow: 3px 3px 0 #000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .history-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .history-header, .history-row {
   display: grid;
   grid-template-columns: 1fr 1.5fr 1fr 1fr;
-  padding: 10px;
-  border-bottom: 1px solid #333;
+  padding: 15px 20px;
+  border-radius: 40px;
   align-items: center;
 }
 
 .history-header {
-  font-weight: bold;
-  color: #888;
+  background: rgba(255,255,255,0.1);
+  font-weight: 900;
+  color: #FFD966;
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
 }
 
-.status-pass { color: #4caf50; font-weight: bold; }
-.status-fail { color: #f44336; }
+.history-row {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,180,71,0.3);
+  transition: transform 0.2s;
+}
+
+.history-row:hover {
+  transform: translateX(5px);
+  background: rgba(255,255,255,0.1);
+}
+
+.status-pass {
+  color: #2ECC71;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.status-fail {
+  color: #E74C3C;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
 
 .metaphor-cell {
-  font-family: 'Courier New', Courier, monospace;
-  color: #00d4ff;
+  font-family: 'Fredoka One', cursive;
+  color: #FFD966;
+  font-size: 1.1rem;
 }
 
-.date-cell { color: #666; font-size: 0.85rem; }
+.date-cell {
+  color: #95A5A6;
+  font-size: 0.9rem;
+}
+
+/* Loading State */
+.loading-screen {
+  text-align: center;
+  padding: 60px;
+  font-size: 2.5rem;
+  color: #FF8C42;
+  animation: bounce 1s infinite;
+}
+/* Add these to your existing mission-control.css */
+
+.attempts-badge {
+  font-size: 1rem;
+  background: #FF8C42;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 40px;
+  margin-left: 10px;
+}
+
+.success-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(145deg, #2ECC71, #27AE60);
+  color: white;
+  padding: 30px 50px;
+  border-radius: 60px;
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+  border: 5px solid white;
+  box-shadow: 0 15px 0 #1E8449, 0 20px 30px rgba(0,0,0,0.3);
+  z-index: 2000;
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    transform: translate(-50%, -30%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+/* Make sure history container is properly styled */
+.history-container {
+  margin-top: 30px;
+  background: linear-gradient(145deg, #2C3E50, #1E2B38);
+  border-radius: 50px;
+  padding: 25px;
+  color: white;
+  border: 4px solid #FFB347;
+  box-shadow: 0 12px 0 #C55A11;
+}
+
+.history-container h3 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2rem;
+  margin-bottom: 25px;
+  text-shadow: 3px 3px 0 #000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-header, .history-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr;
+  padding: 15px 20px;
+  border-radius: 40px;
+  align-items: center;
+}
+
+.history-header {
+  background: rgba(255,255,255,0.1);
+  font-weight: 900;
+  color: #FFD966;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.history-row {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,180,71,0.3);
+  transition: transform 0.2s;
+}
+
+.history-row:hover {
+  transform: translateX(5px);
+  background: rgba(255,255,255,0.1);
+}
+
+.status-pass {
+  color: #2ECC71;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.status-fail {
+  color: #E74C3C;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.metaphor-cell {
+  font-family: 'Fredoka One', cursive;
+  color: #FFD966;
+  font-size: 1.1rem;
+}
+
+.date-cell {
+  color: #95A5A6;
+  font-size: 0.9rem;
+}
+
+/* Ensure proper spacing */
+.mission-status {
+  margin: 30px 0;
+}
+
+.test-grid {
+  margin-top: 20px;
+}

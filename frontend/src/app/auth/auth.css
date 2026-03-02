@@ -1,37 +1,349 @@
 .auth-container {
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 30px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 40px;
+  background: linear-gradient(145deg, #ffffff 0%, #fff9e6 100%);
+  border-radius: 60px;
+  border: 4px solid #FFB347;
+  box-shadow: 0 15px 0 #E67E22, 0 20px 30px rgba(0,0,0,0.15);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Fredoka One', sans-serif;
+}
+
+.auth-container::before {
+  content: "🚀⭐";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  font-size: 8rem;
+  opacity: 0.1;
+  transform: rotate(20deg);
+}
+
+.auth-container::after {
+  content: "👾";
+  position: absolute;
+  bottom: -30px;
+  left: -30px;
+  font-size: 8rem;
+  opacity: 0.1;
+  transform: rotate(-15deg);
+}
+
+.auth-container h2 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.5rem;
+  color: #2C3E50;
+  text-shadow: 4px 4px 0 #FFD966;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 25px;
+  z-index: 2;
+}
+
+.input-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  z-index: 3;
 }
 
 input {
   width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-sizing: border-box; /* Critical for padding */
+  padding: 15px 20px 15px 55px;
+  font-size: 1.1rem;
+  border: 3px solid #FFB347;
+  border-radius: 50px;
+  background: white;
+  box-shadow: 0 6px 0 #E67E22;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+  transition: all 0.2s;
+  box-sizing: border-box;
 }
 
-button {
+input:focus {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #E67E22;
+  border-color: #FF8C42;
+}
+
+input::placeholder {
+  color: #95A5A6;
+  opacity: 0.7;
+}
+
+.auth-button {
   width: 100%;
-  padding: 12px;
-  background: #6200ee;
+  padding: 18px 30px;
+  background: linear-gradient(145deg, #FF8C42, #FF6B00);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 60px;
+  font-size: 1.4rem;
+  font-weight: 900;
   cursor: pointer;
-  font-weight: bold;
-  margin-top: 10px;
+  border: 4px solid white;
+  box-shadow: 0 10px 0 #C55A11;
+  text-shadow: 3px 3px 0 #C55A11;
+  letter-spacing: 2px;
+  font-family: 'Fredoka One', cursive;
+  margin: 20px 0;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 0 #C55A11;
+  background: linear-gradient(145deg, #FF9F5C, #FF7B1C);
+}
+
+.auth-button:active {
+  transform: translateY(5px);
+  box-shadow: 0 5px 0 #C55A11;
 }
 
 .toggle-text {
-  margin-top: 20px;
-  color: #6200ee;
+  color: #FF8C42;
   cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: #FFD4A8;
+  text-underline-offset: 5px;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  padding: 10px 20px;
+}
+
+.toggle-text:hover {
+  color: #E67E22;
+  transform: scale(1.05);
+  text-decoration-color: #FF8C42;
+}
+
+.error-message {
+  background: #FEE2E2;
+  color: #B91C1C;
+  padding: 12px 20px;
+  border-radius: 40px;
+  border: 3px solid #F87171;
+  margin-bottom: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.success-message {
+  background: #D1FAE5;
+  color: #065F46;
+  padding: 12px 20px;
+  border-radius: 40px;
+  border: 3px solid #2ECC71;
+  margin-bottom: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* Decorative elements */
+.star-decoration {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.star-1 { top: 20px; left: 20px; animation: twinkle 2s infinite; }
+.star-2 { bottom: 20px; right: 20px; animation: twinkle 2s infinite 0.5s; }
+.star-3 { top: 50%; left: 10px; animation: twinkle 2s infinite 1s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+/* Loading state */
+.loading-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .auth-container {
+    margin: 20px;
+    padding: 30px;
+  }
+  
+  .auth-container h2 {
+    font-size: 2rem;
+  }
+  
+  .auth-button {
+    font-size: 1.2rem;
+    padding: 15px;
+  }
+}
+
+/* Password Toggle Icon */
+.password-toggle {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  cursor: pointer;
+  z-index: 3;
+  user-select: none;
+  transition: transform 0.2s;
+}
+
+.password-toggle:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Input Hints */
+.input-hint {
+  text-align: left;
+  font-size: 0.8rem;
+  color: #E74C3C;
+  margin-top: 5px;
+  margin-left: 15px;
+  font-weight: 600;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Password Rules Container */
+.password-rules {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 30px;
+  padding: 20px;
+  margin: 15px 0;
+  border: 2px solid #FFB347;
+  box-shadow: 0 4px 0 #E67E22;
+  text-align: left;
+  animation: slideDown 0.3s;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: #7F8C8D;
+  transition: all 0.2s;
+}
+
+.rule-item.rule-met {
+  color: #2ECC71;
+}
+
+.rule-icon {
+  font-size: 1.1rem;
+  min-width: 24px;
+}
+
+.rule-text {
+  font-weight: 600;
+}
+
+/* Password Strength Meter */
+.strength-meter {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.strength-bar-container {
+  width: 100%;
+  height: 10px;
+  background: #ECF0F1;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 5px;
+  border: 2px solid #BDC3C7;
+}
+
+.strength-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.strength-text {
   font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Disabled button state */
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-button:disabled:hover {
+  transform: none;
+  box-shadow: 0 10px 0 #C55A11;
+}
+
+/* Animation for password toggle */
+@keyframes pulse {
+  0% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.1); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+
+.password-toggle:active {
+  animation: pulse 0.2s;
 }
