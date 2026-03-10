@@ -89,25 +89,50 @@ async def run_code(payload: dict = Body(...)):
         test_input = test["input"]
         expected_output = str(test["expected"])
 
-        # Fix: Properly handle the input parsing
+        # Smart detection of input type
         full_code = f"""
 {code}
-import json
+import inspect
 import ast
 
 try:
-    # Parse the input string safely
+    # Get the signature of solve function
+    sig = inspect.signature(solve)
+    param_count = len(sig.parameters)
+    
+    # Parse input
     input_str = {repr(test_input)}
     
-    # If it's a string representation of a list, parse it
-    if input_str.startswith('[') and input_str.endswith(']'):
-        stones = ast.literal_eval(input_str)
+    # Check if input is a list representation
+    if input_str.strip().startswith('[') and input_str.strip().endswith(']'):
+        # It's a list
+        args = ast.literal_eval(input_str)
+        if param_count == 1:
+            # Function expects one parameter (the list)
+            result = solve(args)
+        else:
+            # Function expects multiple parameters, unpack the list
+            result = solve(*args)
     else:
-        # If it's just numbers, split by commas
-        stones = [int(x.strip()) for x in input_str.split(',') if x.strip()]
+        # It's comma-separated values
+        raw_args = [x.strip() for x in input_str.split(',') if x.strip()]
+        args = []
+        for x in raw_args:
+            try:
+                if '.' in x:
+                    args.append(float(x))
+                else:
+                    args.append(int(x))
+            except:
+                args.append(x)
+        
+        if param_count == 1 and len(args) > 1:
+            # Function expects one param but we have multiple values - pass as list
+            result = solve(args)
+        else:
+            # Unpack arguments
+            result = solve(*args)
     
-    # Call the solve function
-    result = solve(stones)
     if result is not None:
         print(result)
     else:
@@ -126,10 +151,7 @@ except Exception as e:
             )
             
             actual_output = container_output.decode("utf-8").strip()
-            print(f"Input: {test_input}, Expected: {expected_output}, Got: '{actual_output}'")  # Debug log
-            
-            # Clean up the output
-            actual_output = actual_output.strip()
+            print(f"Input: {test_input}, Expected: {expected_output}, Got: '{actual_output}'")
             
             if actual_output == expected_output:
                 passed_count += 1
@@ -145,8 +167,8 @@ except Exception as e:
         except Exception as e:
             print(f"Container error: {e}")
             results_log.append({"input": test_input, "passed": False, "error": str(e)})
-            return {"status": "Error", "feedback": f"Sandbox error: {str(e)}"}
 
+    # Rest of the function remains the same...
     is_perfect = (passed_count == total_tests)
     execution_duration = round(time.time() - start_time, 3)
     
@@ -158,7 +180,7 @@ except Exception as e:
     else:
         metaphor = "Snail"
 
-    # Save to database
+    # Save to database...
     try:
         log_entry = {
             "user_id": user_id,
@@ -172,9 +194,7 @@ except Exception as e:
             "output": str(results_log)[:500]
         }
         
-        print(f"🚀 Attempting DB Insert for User {user_id}")
         supabase.table("submissions").insert(log_entry).execute()
-        print("✅ SUCCESS: Added to Submissions table")
         
     except Exception as e:
         print(f"⚠️ History Log Failed: {e}")
