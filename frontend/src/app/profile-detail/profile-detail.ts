@@ -20,6 +20,8 @@ export class ProfileDetailComponent implements OnInit {
   selectedSub: any = null;
   userRole: string = 'student';
   isLoading: boolean = true;
+  currentUserId: string | null = null;
+  isCurrentUser: boolean = false;
 
   readonlyOptions = {
     lineNumbers: true,
@@ -32,7 +34,6 @@ export class ProfileDetailComponent implements OnInit {
     gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
   };
 
-  // Emoji mapping for speed metaphors
   private metaphorEmojis: { [key: string]: string } = {
     'Cheetah': '🐆',
     'Human': '🏃',
@@ -45,7 +46,6 @@ export class ProfileDetailComponent implements OnInit {
     'Hare': '🐇'
   };
 
-  // Color mapping for difficulties
   private difficultyColors: { [key: string]: string } = {
     'Easy': '#2ECC71',
     'Medium': '#F39C12',
@@ -64,16 +64,16 @@ export class ProfileDetailComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      // Get current user's role
       const { data: { user } } = await this.authService.getUser();
       if (user) {
+        this.currentUserId = user.id;
         this.loadUserRole(user.id);
       }
 
-      // Load profile data
       this.route.params.subscribe(params => {
         const userId = params['id'];
         if (userId && userId !== 'undefined') {
+          this.isCurrentUser = (this.currentUserId === userId);
           this.loadProfile(userId);
         } else {
           this.router.navigate(['/']);
@@ -99,7 +99,6 @@ export class ProfileDetailComponent implements OnInit {
       next: (res: any) => {
         this.heroData = res;
         if (res.submissions?.length > 0) {
-          // Sort submissions by date (newest first)
           this.heroData.submissions.sort((a: any, b: any) => 
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           );
@@ -119,16 +118,13 @@ export class ProfileDetailComponent implements OnInit {
     this.selectedSub = submission;
   }
 
-  // Method to get emoji for speed metaphor
   getMetaphorEmoji(metaphor: string): string {
     if (!metaphor) return '⚡';
     
-    // Try exact match
     if (this.metaphorEmojis[metaphor]) {
       return this.metaphorEmojis[metaphor];
     }
     
-    // Try case-insensitive match
     const lowerMetaphor = metaphor.toLowerCase();
     for (const [key, emoji] of Object.entries(this.metaphorEmojis)) {
       if (key.toLowerCase() === lowerMetaphor) {
@@ -136,7 +132,6 @@ export class ProfileDetailComponent implements OnInit {
       }
     }
     
-    // Default emojis based on speed rating
     if (metaphor.toLowerCase().includes('cheetah') || metaphor.toLowerCase().includes('eagle') || metaphor.toLowerCase().includes('rocket')) {
       return '🚀';
     } else if (metaphor.toLowerCase().includes('human')) {
@@ -145,19 +140,16 @@ export class ProfileDetailComponent implements OnInit {
       return '🐌';
     }
     
-    return '⚡'; // Default
+    return '⚡';
   }
 
-  // Method to get color for difficulty
   getDifficultyColor(difficulty: string): string {
     if (!difficulty) return '#7F8C8D';
     
-    // Try exact match
     if (this.difficultyColors[difficulty]) {
       return this.difficultyColors[difficulty];
     }
     
-    // Try case-insensitive match
     const lowerDifficulty = difficulty.toLowerCase();
     for (const [key, color] of Object.entries(this.difficultyColors)) {
       if (key.toLowerCase() === lowerDifficulty) {
@@ -165,10 +157,9 @@ export class ProfileDetailComponent implements OnInit {
       }
     }
     
-    return '#7F8C8D'; // Default gray
+    return '#7F8C8D';
   }
 
-  // Format date nicely
   formatDate(dateString: string): string {
     if (!dateString) return 'Unknown date';
     const date = new Date(dateString);
@@ -179,6 +170,16 @@ export class ProfileDetailComponent implements OnInit {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  goToEditProfile() {
+    console.log('Navigating to edit profile for user:', this.currentUserId);
+    if (this.currentUserId) {
+      this.router.navigate(['/edit-profile', this.currentUserId]);
+    } else {
+      console.error('No current user ID found');
+      alert('Please log in to edit your profile');
+    }
   }
 
   goBack() {

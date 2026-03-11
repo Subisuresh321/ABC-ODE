@@ -15,13 +15,16 @@ import { HttpClient } from '@angular/common/http';
 export class AuthComponent {
   isLogin = true;
   email = '';
+  username = '';  // New field
+  age: number | null = null;  // New field
+  schoolName = '';  // New field
   password = '';
   confirmPassword = '';
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   
-  // Password visibility toggles
+  // Validation flags
   showPassword = false;
   showConfirmPassword = false;
   
@@ -32,6 +35,8 @@ export class AuthComponent {
   hasNumber = false;
   hasSpecialChar = false;
   isEmailValid = true;
+  isUsernameValid = true;  // New validation flag
+  isAgeValid = true;  // New validation flag
   doPasswordsMatch = true;
 
   private motivationalMessages = [
@@ -51,9 +56,16 @@ export class AuthComponent {
 
   toggleMode() {
     this.isLogin = !this.isLogin;
+    this.resetForm();
+  }
+
+  resetForm() {
     this.errorMessage = '';
     this.successMessage = '';
     this.email = '';
+    this.username = '';
+    this.age = null;
+    this.schoolName = '';
     this.password = '';
     this.confirmPassword = '';
     this.resetPasswordValidation();
@@ -98,9 +110,22 @@ export class AuthComponent {
     }
   }
 
+  // Validation methods
   validateEmail() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     this.isEmailValid = emailRegex.test(this.email);
+  }
+
+  validateUsername() {
+    this.isUsernameValid = this.username.length >= 3;
+  }
+
+  validateAge() {
+    if (this.age) {
+      this.isAgeValid = this.age >= 5 && this.age <= 120;
+    } else {
+      this.isAgeValid = true; // Age is optional
+    }
   }
 
   validatePassword() {
@@ -127,6 +152,8 @@ export class AuthComponent {
     this.hasSpecialChar = false;
     this.doPasswordsMatch = true;
     this.isEmailValid = true;
+    this.isUsernameValid = true;
+    this.isAgeValid = true;
   }
 
   isFormValid(): boolean {
@@ -142,7 +169,16 @@ export class AuthComponent {
       return true; // Login only needs email and password
     }
 
-    // Registration needs all password rules and matching confirmation
+    // Registration validation
+    if (!this.username || !this.isUsernameValid) {
+      return false;
+    }
+
+    if (!this.isAgeValid) {
+      return false;
+    }
+
+    // Password rules
     return this.hasMinLength && 
            this.hasUpperCase && 
            this.hasLowerCase && 
@@ -171,8 +207,26 @@ export class AuthComponent {
     }
 
     if (!this.isLogin) {
+      // Validate username
+      this.validateUsername();
+      if (!this.username) {
+        this.errorMessage = 'Please choose a hero name! 🦸';
+        return false;
+      }
+      if (!this.isUsernameValid) {
+        this.errorMessage = 'Hero name must be at least 3 characters! 📏';
+        return false;
+      }
+
+      // Validate age if provided
+      this.validateAge();
+      if (this.age && !this.isAgeValid) {
+        this.errorMessage = 'Age must be between 5 and 120! 🎂';
+        return false;
+      }
+
+      // Validate password
       this.validatePassword();
-      
       if (!this.hasMinLength || !this.hasUpperCase || !this.hasLowerCase || !this.hasNumber || !this.hasSpecialChar) {
         this.errorMessage = 'Please follow all password rules! ⚡';
         return false;
@@ -194,11 +248,9 @@ export class AuthComponent {
   }
 
   async handleAuth() {
-    // Clear previous messages
     this.errorMessage = '';
     this.successMessage = '';
     
-    // Validate form
     if (!this.validateForm()) {
       return;
     }
@@ -233,7 +285,6 @@ export class AuthComponent {
         // Fetch profile to check role
         this.http.get(`http://127.0.0.1:8000/profile/${data.user.id}`).subscribe({
           next: (profile: any) => {
-            // Dispatch event to update navbar
             window.dispatchEvent(new CustomEvent('user-logged-in', { 
               detail: { userId: data.user.id } 
             }));
@@ -260,6 +311,7 @@ export class AuthComponent {
 
   async handleSignUp() {
     try {
+      // First, sign up the user
       const { data, error } = await this.authService.signUp(this.email, this.password);
       
       if (error) {
@@ -271,13 +323,29 @@ export class AuthComponent {
         return;
       }
       
-      // Success message for signup
-      this.successMessage = '✨ Welcome to the academy! Please check your email to confirm your account.';
-      this.isLogin = true; // Switch to login mode
-      this.email = '';
-      this.password = '';
-      this.confirmPassword = '';
-      this.resetPasswordValidation();
+      if (data?.user) {
+        // Create profile with username, age, school
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const profileData = {
+          user_id: data.user.id,
+          hero_name: this.username,
+          age: this.age,
+          school_name: this.schoolName
+        };
+
+        this.http.post('http://127.0.0.1:8000/create-profile', profileData).subscribe({
+          next: () => {
+            this.successMessage = '✨ Welcome to the academy! Please check your email to confirm your account.';
+            this.isLogin = true;
+            this.resetForm();
+          },
+          error: (err) => {
+            console.error('Profile creation error:', err);
+            this.errorMessage = 'Account created but profile setup failed. Please contact support.';
+          }
+        });
+      }
       
     } catch (error: any) {
       this.errorMessage = '🚨 Connection error. Please try again!';

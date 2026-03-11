@@ -27,6 +27,9 @@ export class AuthService {
     return await this.supabase.auth.signOut();
   }
 
+async getSession() {
+  return await this.supabase.auth.getSession();
+}
   getUser() {
     return this.supabase.auth.getUser();
   }
