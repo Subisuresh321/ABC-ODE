@@ -4,15 +4,15 @@ import { MissionControlComponent } from './mission-control/mission-control';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard';
 import { AuthComponent } from './auth/auth';
 import { ProfileDetailComponent } from './profile-detail/profile-detail';
+import { EditprofileComponent } from './editprofile/editprofile';
 import { adminGuard } from './admin.guard';
 
 export const routes: Routes = [
   { path: '', component: MissionListComponent },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
-  { path: '', component: MissionListComponent },
   { path: 'mission/:id', component: MissionControlComponent },
-  { path: 'admin', component: AdminDashboardComponent },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
   { path: 'login', component: AuthComponent },
-  { path: '', component: MissionListComponent },
-  { path: 'profile/:id', component: ProfileDetailComponent }
+  { path: 'profile/:id', component: ProfileDetailComponent },
+  { path: 'edit-profile/:id', component: EditprofileComponent }, 
+  { path: '**', redirectTo: '' }
 ];

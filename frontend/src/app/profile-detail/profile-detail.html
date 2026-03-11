@@ -10,10 +10,17 @@
   <!-- Hero Header -->
   <header class="hero-header">
     <div class="hero-identity">
-      <div class="avatar">{{ heroData.identity.hero_name[0] }}</div>
+      <div class="avatar">
+        <img *ngIf="heroData.identity.avatar_url" [src]="heroData.identity.avatar_url" alt="avatar">
+        <span *ngIf="!heroData.identity.avatar_url">{{ heroData.identity.hero_name[0] }}</span>
+      </div>
       <div class="name-box">
         <h1>{{ heroData.identity.hero_name }}</h1>
-        <p>📅 Member since {{ formatDate(heroData.identity.created_at) }}</p>
+        <div class="hero-details">
+          <p>📅 Member since {{ formatDate(heroData.identity.created_at) }}</p>
+          <p *ngIf="heroData.identity.age">🎂 Age: {{ heroData.identity.age }}</p>
+          <p *ngIf="heroData.identity.school_name">🏫 {{ heroData.identity.school_name }}</p>
+        </div>
       </div>
     </div>
 
@@ -27,6 +34,11 @@
         <span class="lbl">TOTAL XP ⚡</span>
       </div>
     </div>
+
+    <!-- EDIT PROFILE BUTTON -->
+    <button *ngIf="isCurrentUser" class="edit-profile-btn" (click)="goToEditProfile()">
+      EDIT PROFILE
+    </button>
   </header>
 
   <!-- Main Content -->

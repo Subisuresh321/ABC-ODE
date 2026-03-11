@@ -1,22 +1,28 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Header, Body
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 import docker
-import json,time
-from fastapi import Body
+import json
+import time
+from datetime import datetime, timezone
+from typing import Optional
+from supabase import ClientOptions 
 
 # --- SETUP ---
-load_dotenv()  # This loads the variables from .env
+load_dotenv()
 
 URL = os.getenv("SUPABASE_URL")
-KEY = os.getenv("SUPABASE_KEY")
+ANON_KEY = os.getenv("SUPABASE_KEY")  # This is your anon key
+SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-if not URL or not KEY:
+if not URL or not ANON_KEY:
     print("❌ Error: Supabase credentials not found in .env file")
 
-supabase: Client = create_client(URL, KEY)
+# Create base client (for unauthenticated requests)
+supabase: Client = create_client(URL, ANON_KEY)
+supabase_admin: Client = create_client(URL, SERVICE_ROLE_KEY)
 
 client = docker.from_env()
 
@@ -30,11 +36,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def get_authenticated_client(token: str):
+    """Create a Supabase client with the user's JWT token"""
+    options = ClientOptions(
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    return create_client(URL, ANON_KEY, options=options)
 
 @app.get("/admin/users")
 async def get_all_users():
     try:
-        # Fetch all heroes, sorted by XP
         response = supabase.table("profiles") \
             .select("id, hero_name, xp_points, updated_at") \
             .order("xp_points", desc=True) \
@@ -43,7 +54,6 @@ async def get_all_users():
     except Exception as e:
         print(f"Admin User Fetch Error: {e}")
         raise HTTPException(status_code=500, detail="Could not retrieve the hero directory.")
-    
 
 
 @app.get("/history/{user_id}/{problem_id}")
@@ -61,8 +71,9 @@ async def get_history(user_id: str, problem_id: str):
         print(f"History Fetch Error: {e}")
         return []
 
-@app.get("/mission/{mission_id}")  # <--- Added {mission_id}
-async def get_mission(mission_id: str): # <--- Added mission_id as an argument
+
+@app.get("/mission/{mission_id}")
+async def get_mission(mission_id: str):
     try:
         response = supabase.table("problems").select("*").eq("id", mission_id).execute()
         
@@ -72,9 +83,10 @@ async def get_mission(mission_id: str): # <--- Added mission_id as an argument
         return response.data[0]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @app.post("/run")
-async def run_code(payload: dict = Body(...)):
+async def run_code(payload: dict = Body(None)):
     start_time = time.time()
     code = payload.get("code")
     test_cases = payload.get("test_cases")
@@ -89,32 +101,24 @@ async def run_code(payload: dict = Body(...)):
         test_input = test["input"]
         expected_output = str(test["expected"])
 
-        # Smart detection of input type
         full_code = f"""
 {code}
 import inspect
 import ast
 
 try:
-    # Get the signature of solve function
     sig = inspect.signature(solve)
     param_count = len(sig.parameters)
     
-    # Parse input
     input_str = {repr(test_input)}
     
-    # Check if input is a list representation
     if input_str.strip().startswith('[') and input_str.strip().endswith(']'):
-        # It's a list
         args = ast.literal_eval(input_str)
         if param_count == 1:
-            # Function expects one parameter (the list)
             result = solve(args)
         else:
-            # Function expects multiple parameters, unpack the list
             result = solve(*args)
     else:
-        # It's comma-separated values
         raw_args = [x.strip() for x in input_str.split(',') if x.strip()]
         args = []
         for x in raw_args:
@@ -127,10 +131,8 @@ try:
                 args.append(x)
         
         if param_count == 1 and len(args) > 1:
-            # Function expects one param but we have multiple values - pass as list
             result = solve(args)
         else:
-            # Unpack arguments
             result = solve(*args)
     
     if result is not None:
@@ -168,11 +170,9 @@ except Exception as e:
             print(f"Container error: {e}")
             results_log.append({"input": test_input, "passed": False, "error": str(e)})
 
-    # Rest of the function remains the same...
     is_perfect = (passed_count == total_tests)
     execution_duration = round(time.time() - start_time, 3)
     
-    # Metaphor Logic
     if execution_duration < 0.2:
         metaphor = "Cheetah"
     elif execution_duration < 0.5:
@@ -180,7 +180,6 @@ except Exception as e:
     else:
         metaphor = "Snail"
 
-    # Save to database...
     try:
         log_entry = {
             "user_id": user_id,
@@ -208,22 +207,21 @@ except Exception as e:
         "duration": execution_duration
     }
 
+
 @app.get("/missions")
 async def get_all_missions():
-    # Fetch all missions but only the basic info to keep it fast
     response = supabase.table("problems").select("id", "title", "difficulty", "category").execute()
     return response.data
+
 
 @app.post("/add-xp")
 async def add_xp(payload: dict = Body(...)):
     user_id = payload.get("user_id")
     xp_to_add = payload.get("xp_to_add")
     
-    # 1. Get current XP
     user = supabase.table("profiles").select("xp_points").eq("id", user_id).single().execute()
     new_xp = (user.data['xp_points'] or 0) + xp_to_add
     
-    # 2. Update the profile
     supabase.table("profiles").update({"xp_points": new_xp}).eq("id", user_id).execute()
     
     return {"status": "success", "new_xp": new_xp}
@@ -232,47 +230,165 @@ async def add_xp(payload: dict = Body(...)):
 @app.get("/profile/{user_id}")
 async def get_profile(user_id: str):
     try:
-        # Include 'role' in the selection
         response = supabase.table("profiles") \
-            .select("hero_name, role") \
+            .select("hero_name, role, age, school_name, avatar_url") \
             .eq("id", user_id) \
             .single() \
             .execute()
         return response.data
     except Exception as e:
-        return {"hero_name": "Commander", "role": "student"}
-    
-@app.get("/user-profile/{user_id}")
-async def get_public_profile(user_id: str):
+        return {"hero_name": "Commander", "role": "student", "age": None, "school_name": None, "avatar_url": None}
+
+
+@app.post("/update-profile")
+async def update_profile(
+    user_id: str = Form(...),
+    hero_name: str = Form(...),
+    age: str = Form(...),
+    school_name: str = Form(...),
+    avatar: UploadFile = File(None),
+    authorization: Optional[str] = Header(None)
+):
     try:
-        # Fetch profile using columns we KNOW exist in your screenshot
-        profile_res = supabase.table("profiles") \
-            .select("hero_name, xp_points, updated_at") \
+        print(f"Updating profile for user: {user_id}")
+        print(f"Data received - hero_name: {hero_name}, age: {age}, school_name: {school_name}")
+        
+        # Check if user exists
+        check_user = supabase.table("profiles").select("id").eq("id", user_id).execute()
+        print(f"User exists: {len(check_user.data) > 0}")
+        
+        if not check_user.data:
+            return {"status": "error", "message": "User not found"}
+        
+        # Extract token from Authorization header
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Missing authorization token")
+        
+        token = authorization.replace("Bearer ", "")
+        
+        # Create authenticated client with user's token
+        auth_client = get_authenticated_client(token)
+        
+        # Build update data
+        update_data = {
+            "hero_name": hero_name,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        if age and age.strip():
+            update_data["age"] = int(age)
+        
+        if school_name:
+            update_data["school_name"] = school_name
+        
+        # Handle avatar upload if provided
+        if avatar and avatar.filename:
+            print(f"Avatar uploaded: {avatar.filename}")
+            try:
+                file_content = await avatar.read()
+                file_ext = avatar.filename.split('.')[-1]
+                file_name = f"{user_id}/avatar.{file_ext}"
+                
+                # Upload using authenticated client
+                storage_response = auth_client.storage \
+                    .from_("avatars") \
+                    .upload(
+                        path=file_name,
+                        file=file_content,
+                        file_options={"content-type": avatar.content_type, "upsert": "true"}
+                    )
+                
+                avatar_url = auth_client.storage \
+                    .from_("avatars") \
+                    .get_public_url(file_name)
+                
+                update_data["avatar_url"] = avatar_url
+                print(f"Avatar URL: {avatar_url}")
+                
+            except Exception as storage_error:
+                print(f"Storage error: {storage_error}")
+                # Continue without avatar
+        
+        # Update profile using authenticated client
+        print(f"Update data: {update_data}")
+        response = auth_client.table("profiles") \
+            .update(update_data) \
             .eq("id", user_id) \
             .execute()
         
-        if not profile_res.data:
-            print(f"ID {user_id} not found in Profiles table")
-            raise HTTPException(status_code=404, detail="Hero not found!")
+        print(f"Update response: {response}")
+        print(f"Profile updated: {response.data}")
+        
+        if not response.data:
+            return {"status": "error", "message": "Update failed - no rows updated"}
+            
+        return {"status": "success", "data": response.data}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Profile update error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.get("/user-profile/{user_id}")
+async def get_public_profile(user_id: str):
+    try:
+        print(f"📊 Fetching public profile for user: {user_id}")
+        
+        profile_res = supabase.table("profiles") \
+            .select("*") \
+            .eq("id", user_id) \
+            .execute()
+        
+        print(f"Profile query result: {profile_res}")
+        
+        if not profile_res.data:
+            print(f"❌ No profile found for user: {user_id}")
+            return {
+                "identity": {
+                    "hero_name": "Hero",
+                    "xp_points": 0,
+                    "created_at": None,
+                    "age": None,
+                    "school_name": None,
+                    "avatar_url": None
+                },
+                "submissions": []
+            }
+        
         # Fetch submissions
         subs_res = supabase.table("latest_user_submissions") \
-            .select("*, problems(title, category, difficulty)") \
+            .select("*, problems!inner(title, category, difficulty)") \
             .eq("user_id", user_id) \
             .execute()
-            
+        
         return {
             "identity": profile_res.data[0],
             "submissions": subs_res.data or []
         }
     except Exception as e:
-        print(f"DATABASE ERROR: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    
+        print(f"💥 Error in get_public_profile: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            "identity": {
+                "hero_name": "Hero",
+                "xp_points": 0,
+                "created_at": None,
+                "age": None,
+                "school_name": None,
+                "avatar_url": None
+            },
+            "submissions": []
+        }
+
+
 @app.get("/leaderboard")
 async def get_leaderboard():
     try:
-        # We MUST include "id" here so the frontend can link to the profile!
         response = supabase.table("profiles") \
             .select("id, hero_name, xp_points, avatar_url") \
             .order("xp_points", desc=True) \
@@ -282,6 +398,7 @@ async def get_leaderboard():
     except Exception as e:
         print(f"Leaderboard Error: {e}")
         return []
+
 
 @app.post("/mission")
 async def add_mission(payload: dict = Body(...)):
@@ -293,19 +410,56 @@ async def add_mission(payload: dict = Body(...)):
             "difficulty": payload.get("difficulty"),
             "starter_code": payload.get("starter_code"),
             "test_cases": payload.get("test_cases"),
-            "xp_reward": int(payload.get("xp_reward", 0)), # Ensure this is an integer
-            "hints": [] # Explicitly send an empty list for hints
+            "xp_reward": int(payload.get("xp_reward", 0)),
+            "hints": []
         }).execute()
         
         return {"status": "success", "data": response.data}
     except Exception as e:
-        # Check your terminal! This will tell you EXACTLY which column or value failed.
         print("--- DATABASE ERROR ---")
         print(e) 
         print("-----------------------")
         raise HTTPException(status_code=500, detail=str(e))
     
-    
+
+@app.get("/debug-profile/{user_id}")
+async def debug_profile(user_id: str):
+    try:
+        response = supabase.table("profiles").select("*").eq("id", user_id).execute()
+        return {
+            "exists": len(response.data) > 0,
+            "data": response.data,
+            "count": len(response.data)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/create-profile")
+async def create_profile(payload: dict = Body(...)):  # ← remove authorization header
+    try:
+        user_id = payload.get("user_id")
+        hero_name = payload.get("hero_name", "Hero")
+        age = payload.get("age")
+        school_name = payload.get("school_name")
+
+        profile_data = {
+            "id": user_id,
+            "hero_name": hero_name,
+            "xp_points": 0,
+            "role": "student"
+        }
+        if age is not None:
+            profile_data["age"] = int(age)
+        if school_name:
+            profile_data["school_name"] = school_name
+
+        response = supabase_admin.table("profiles").upsert(profile_data).execute()  # ← supabase_admin
+        return {"status": "success", "data": response.data}
+    except Exception as e:
+        print(f"Create profile error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

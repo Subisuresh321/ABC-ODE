@@ -32,6 +32,46 @@
     ⚡ Please enter a valid email address
   </div>
   
+  <!-- Username Input (only in register mode) -->
+  <div class="input-group" *ngIf="!isLogin">
+    <span class="input-icon">🦸</span>
+    <input 
+      [(ngModel)]="username" 
+      type="text" 
+      placeholder="Choose your hero name"
+      [disabled]="isLoading"
+      (input)="validateUsername()">
+  </div>
+  <div class="input-hint" *ngIf="!isLogin && username && !isUsernameValid">
+    ⚡ Username must be at least 3 characters
+  </div>
+  
+  <!-- Age Input (only in register mode) -->
+  <div class="input-group" *ngIf="!isLogin">
+    <span class="input-icon">🎂</span>
+    <input 
+      [(ngModel)]="age" 
+      type="number" 
+      placeholder="Your age (optional)"
+      [disabled]="isLoading"
+      min="5"
+      max="120"
+      (input)="validateAge()">
+  </div>
+  <div class="input-hint" *ngIf="!isLogin && age && !isAgeValid">
+    ⚡ Age must be between 5 and 120
+  </div>
+  
+  <!-- School Name Input (only in register mode) -->
+  <div class="input-group" *ngIf="!isLogin">
+    <span class="input-icon">🏫</span>
+    <input 
+      [(ngModel)]="schoolName" 
+      type="text" 
+      placeholder="Your school name (optional)"
+      [disabled]="isLoading">
+  </div>
+  
   <!-- Password Input with Eye Toggle -->
   <div class="input-group">
     <span class="input-icon">🔐</span>

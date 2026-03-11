@@ -1,0 +1,102 @@
+<div class="edit-profile-container">
+  
+  <!-- Back Button -->
+  <button class="back-button" (click)="goBack()">
+    ⬅ BACK TO PROFILE
+  </button>
+
+  <div class="edit-card">
+    <h2>✏️ EDIT HERO PROFILE</h2>
+    
+    <!-- Profile Picture Section -->
+    <div class="avatar-section">
+      <div class="current-avatar" [style.background-image]="'url(' + avatarPreview + ')'">
+       <span *ngIf="!avatarPreview">{{ heroName ? heroName[0] : '?' }}</span>
+      </div>
+      <div class="avatar-upload">
+        <label for="avatar-upload" class="upload-btn">
+          📸 CHOOSE AVATAR
+        </label>
+        <input 
+          id="avatar-upload" 
+          type="file" 
+          accept="image/*" 
+          (change)="onAvatarSelected($event)"
+          style="display: none;">
+        <p class="hint">Upload a square image (PNG, JPG)</p>
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <form (ngSubmit)="saveProfile()" #profileForm="ngForm">
+      
+      <!-- Hero Name -->
+      <div class="form-group">
+        <label>🦸 HERO NAME</label>
+        <input 
+          type="text" 
+          [(ngModel)]="heroName" 
+          name="heroName"
+          required
+          minlength="3"
+          maxlength="30"
+          #nameInput="ngModel"
+          placeholder="Enter your hero name">
+        <div class="error-message" *ngIf="nameInput.invalid && nameInput.touched">
+          <span *ngIf="nameInput.errors?.['required']">Hero name is required! ⚡</span>
+          <span *ngIf="nameInput.errors?.['minlength']">At least 3 characters long! 📏</span>
+        </div>
+      </div>
+
+      <!-- Age -->
+      <div class="form-group">
+        <label>🎂 AGE</label>
+        <input 
+          type="number" 
+          [(ngModel)]="age" 
+          name="age"
+          min="5"
+          max="120"
+          #ageInput="ngModel"
+          placeholder="Enter your age">
+        <div class="error-message" *ngIf="ageInput.invalid && ageInput.touched">
+          <span *ngIf="ageInput.errors?.['min']">Must be at least 5 years old! 🌟</span>
+          <span *ngIf="ageInput.errors?.['max']">That's impressive! But please enter a valid age 😊</span>
+        </div>
+      </div>
+
+      <!-- School Name -->
+      <div class="form-group">
+        <label>🏫 SCHOOL NAME</label>
+        <input 
+          type="text" 
+          [(ngModel)]="schoolName" 
+          name="schoolName"
+          maxlength="100"
+          placeholder="Enter your school name ">
+      </div>
+
+      <!-- Save Button -->
+      <button 
+        type="submit" 
+        class="save-btn" 
+        [disabled]="profileForm.invalid || isSaving">
+        <span *ngIf="!isSaving">💾 SAVE CHANGES</span>
+        <span *ngIf="isSaving" class="saving-spinner">
+          <span class="spinner"></span> SAVING...
+        </span>
+      </button>
+
+      <!-- Success Message -->
+      <div class="success-message" *ngIf="showSuccess">
+        ✅ Profile updated successfully!
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="errorMessage">
+        ⚠️ {{ errorMessage }}
+      </div>
+
+    </form>
+  </div>
+</div>
