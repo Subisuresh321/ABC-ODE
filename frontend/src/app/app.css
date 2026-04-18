@@ -239,3 +239,30 @@ body {
     padding: 8px 12px;
   }
 }
+.navbar-login {
+  background: linear-gradient(145deg, #FF8C42, #E67E22);
+  justify-content: space-between;
+}
+
+.login-link {
+  background: white;
+  color: #E67E22;
+  border: 3px solid #FFD4A8;
+  padding: 8px 25px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 900;
+  transition: all 0.2s;
+  box-shadow: 0 5px 0 #9B4A0E;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.login-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0 #9B4A0E;
+  background: #FFE5B4;
+}

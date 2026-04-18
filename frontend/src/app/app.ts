@@ -25,16 +25,30 @@ export class AppComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // Check session on load
-    const { data: { user } } = await this.authService.getUser();
-    this.isLoggedIn = !!user;
+    // Initial auth check
+    await this.checkAuthState();
 
-    if (user) {
-      this.currentUserId = user.id;
-      this.loadUserProfile(user.id);
-    }
+    // Listen for auth state changes (SIGNED_IN, SIGNED_OUT)
+    this.authService.supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event);
+      
+      this.ngZone.run(async () => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          // User just logged in
+          this.isLoggedIn = true;
+          this.currentUserId = session.user.id;
+          await this.loadUserProfile(session.user.id);
+        } else if (event === 'SIGNED_OUT') {
+          // User logged out
+          this.isLoggedIn = false;
+          this.heroName = 'Recruit';
+          this.xp = 0;
+          this.currentUserId = null;
+        }
+      });
+    });
 
-    // Listen for profile updates
+    // Listen for custom profile update events
     window.addEventListener('profile-updated', ((event: CustomEvent) => {
       if (event.detail.userId === this.currentUserId) {
         this.loadUserProfile(this.currentUserId!);
@@ -42,25 +56,37 @@ export class AppComponent implements OnInit {
     }) as EventListener);
   }
 
-  loadUserProfile(userId: string) {
-    this.http.get(`http://127.0.0.1:8000/profile/${userId}`).subscribe({
-      next: (data: any) => {
-        this.ngZone.run(() => {
-          this.heroName = data.hero_name || 'Recruit';
-        });
-      },
-      error: (err) => console.error("Failed to load user profile:", err)
+  async checkAuthState() {
+    const { data: { user } } = await this.authService.getUser();
+    this.isLoggedIn = !!user;
+
+    if (user) {
+      this.currentUserId = user.id;
+      await this.loadUserProfile(user.id);
+    }
+  }
+
+  async loadUserProfile(userId: string) {
+    return new Promise((resolve) => {
+      this.http.get(`http://127.0.0.1:8000/profile/${userId}`).subscribe({
+        next: (data: any) => {
+          this.ngZone.run(() => {
+            this.heroName = data.hero_name || 'Recruit';
+            this.xp = data.xp_points || 0;
+          });
+          resolve(true);
+        },
+        error: (err) => {
+          console.error("Failed to load user profile:", err);
+          resolve(false);
+        }
+      });
     });
   }
 
   async logout() {
     await this.authService.signOut();
-    this.ngZone.run(() => {
-      this.isLoggedIn = false;
-      this.heroName = 'Recruit';
-      this.xp = 0;
-      this.currentUserId = null;
-    });
+    // The onAuthStateChange listener will handle the UI update
     this.router.navigate(['/login']);
   }
 }
