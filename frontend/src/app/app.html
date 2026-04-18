@@ -1,22 +1,27 @@
-<nav class="navbar" *ngIf="isLoggedIn">
+<nav class="navbar">
   <h1 routerLink="/">🚀 ABC-ODE</h1>
   
   <div class="user-stats">
-    <div class="hero-info" [routerLink]="['/profile', currentUserId]" *ngIf="currentUserId" style="cursor: pointer;">
-      <span class="greeting">👋 Hi,</span>
-      <span class="name">{{ heroName }}</span>
-    </div>
-    
-    <!-- <div class="xp-display">
-      <span class="xp-icon">⚡</span>
-      <span class="xp-value">{{ xp }}</span>
-      <span class="xp-label">XP</span>
-    </div> -->
+    <!-- Show when logged in -->
+    <ng-container *ngIf="isLoggedIn">
+      <div class="hero-info" [routerLink]="['/profile', currentUserId]" *ngIf="currentUserId" style="cursor: pointer;">
+        <span class="greeting">👋 Hi,</span>
+        <span class="name">{{ heroName }}</span>
+      </div>
 
-    <button class="logout-link" (click)="logout()">
-      <span class="logout-icon">🚪</span>
-      <span class="logout-text">LOG OUT</span>
-    </button>
+      <button class="logout-link" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-text">LOG OUT</span>
+      </button>
+    </ng-container>
+
+    <!-- Show when NOT logged in -->
+    <ng-container *ngIf="!isLoggedIn">
+      <button class="login-link" routerLink="/login">
+        <span class="login-icon">🚀</span>
+        <span class="login-text">LOGIN / REGISTER</span>
+      </button>
+    </ng-container>
   </div>
 </nav>
 

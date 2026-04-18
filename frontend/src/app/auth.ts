@@ -6,7 +6,7 @@ import { environment } from '../environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private supabase: SupabaseClient;
+  public supabase: SupabaseClient;
 
   constructor() {
     this.supabase = createClient(
