@@ -2,18 +2,21 @@
   
   <!-- Hero Section -->
   <header class="dashboard-hero">
-    <div class="welcome-box">
-      <div class="tip-pill" *ngIf="dailyTip">
-        <span class="icon">💡</span> {{ dailyTip }}
-      </div>
-      
-      <h2 class="font-kids" style="font-size: 2.5rem; margin-top: 0.5rem;">
-        Hi, <span class="text-orange cursor-pointer hover:underline" [routerLink]="['/profile', currentUserId]">
-          {{ heroName }}
-        </span>! 👋
-      </h2>
-      <p style="font-size: 1.3rem; color: #5D6D7E; font-weight: 800;">Ready to save the galaxy with code?</p>
-    </div>
+    <div class="welcome-box" [style.background-image]="'url(/assets/kidimage.png)'">
+  <div class="tip-pill" *ngIf="dailyTip">
+    <span class="icon">💡</span> {{ dailyTip }}
+  </div>
+  
+  <h2 class="font-kids" style="font-size: 2.5rem; margin-top: 0.5rem; color: white !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+    Hi, <span class="text-orange cursor-pointer hover:underline" [routerLink]="['/profile', currentUserId]" style="color: #FFD966 !important;">
+      {{ heroName }}
+    </span>! 👋
+  </h2>
+  
+  <p style="font-size: 1.3rem; color: white !important; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+    Ready to save the galaxy with code?
+  </p>
+</div>
 
     <!-- <div class="stats-box">
       <div class="stat-item">
