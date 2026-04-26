@@ -433,3 +433,135 @@
 .test-grid {
   margin-top: 20px;
 }
+
+/* Increase CodeMirror font size */
+::ng-deep .CodeMirror {
+  font-size: 22px !important;
+  line-height: 1.5 !important;
+}
+
+::ng-deep .CodeMirror pre {
+  font-size: 22px !important;
+}
+
+/* Hints Section */
+.hints-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: linear-gradient(145deg, #FFF3E0, #FFE5B4);
+  border-radius: 30px;
+  border: 3px solid #FFB347;
+}
+
+.hints-section h4 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem;
+  color: #2C3E50;
+  margin-bottom: 15px;
+}
+
+.hints-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.hint-card {
+  flex: 1;
+  min-width: 200px;
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid #e0e0e0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hint-card:hover {
+  transform: translateY(-5px);
+  border-color: #FF8C42;
+  box-shadow: 0 8px 0 #E67E22;
+}
+
+.hint-icon {
+  font-size: 2rem;
+  animation: bounce 2s infinite;
+}
+
+.hint-content {
+  flex: 1;
+}
+
+.hint-question {
+  font-weight: 800;
+  color: #FF8C42;
+  margin-bottom: 5px;
+}
+
+.hint-answer {
+  color: #5D6D7E;
+  font-size: 0.9rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.hint-card:hover .hint-answer {
+  max-height: 100px;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.complexity-card {
+  margin-top: 30px;
+  padding: 20px;
+  background: linear-gradient(145deg, #E8F8F5, #D1F2EB);
+  border-radius: 30px;
+  border: 3px solid #1ABC9C;
+}
+
+.complexity-card h4 {
+  font-family: 'Fredoka One', cursive;
+  color: #0E6655;
+  margin-bottom: 15px;
+}
+
+.complexity-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.stat {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+  background: white;
+  border-radius: 15px;
+}
+
+.stat-label {
+  font-weight: 800;
+  color: #2C3E50;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  color: #1ABC9C;
+  font-weight: 900;
+}
+
+.error-message {
+  color: #E74C3C;
+  font-weight: 600;
+  max-width: 400px;
+  line-height: 1.4;
+}

@@ -108,6 +108,8 @@ async def run_code(payload: dict = Body(None)):
     passed_count = 0
     total_tests = len(test_cases)
     results_log = []
+    has_infinite_loop = False
+    has_memory_error = False
 
     for test in test_cases:
         test_input = test["input"]
@@ -117,6 +119,20 @@ async def run_code(payload: dict = Body(None)):
 {code}
 import inspect
 import ast
+import sys
+import traceback
+import time
+import signal
+
+class TimeoutError(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Code took too long to run!")
+
+# Set timeout for infinite loops (5 seconds)
+signal.signal(signal.SIGALRM, timeout_handler)
+signal.alarm(5)
 
 try:
     sig = inspect.signature(solve)
@@ -147,26 +163,58 @@ try:
         else:
             result = solve(*args)
     
+    signal.alarm(0)  # Cancel timeout
+    
     if result is not None:
         print(result)
     else:
         print("None")
+except TimeoutError:
+    print("ERROR_INFINITE_LOOP")
+except MemoryError:
+    print("ERROR_MEMORY")
+except IndexError:
+    print("ERROR_INDEX_OUT_OF_BOUNDS")
+except ZeroDivisionError:
+    print("ERROR_DIVISION_BY_ZERO")
+except TypeError as e:
+    if "unsupported operand type" in str(e):
+        print("ERROR_TYPE_MISMATCH")
+    else:
+        print(f"ERROR_TYPE: {{e}}")
+except NameError:
+    print("ERROR_NAME_NOT_DEFINED")
 except Exception as e:
-    print(f"Error: {{e}}")
+    print(f"ERROR_GENERAL: {{e}}")
 """
 
         try:
+
             container_output = client.containers.run(
-                "python:3.12-slim",
-                command=["python", "-c", full_code],
-                remove=True,
-                network_disabled=True,
-                mem_limit="128m"
+            "python:3.12-slim",
+            command=["python", "-c", full_code],
+            remove=True,
+            network_disabled=True,
+            mem_limit="128m"
+            # Remove the timeout parameter from here
             )
-            
+    
             actual_output = container_output.decode("utf-8").strip()
             print(f"Input: {test_input}, Expected: {expected_output}, Got: '{actual_output}'")
             
+            # Check for errors
+            if actual_output.startswith("ERROR_"):
+                if "INFINITE_LOOP" in actual_output:
+                    has_infinite_loop = True
+                elif "MEMORY" in actual_output:
+                    has_memory_error = True
+                results_log.append({
+                    "input": test_input, 
+                    "passed": False, 
+                    "error": get_friendly_error_message(actual_output)
+                })
+                continue
+                
             if actual_output == expected_output:
                 passed_count += 1
                 results_log.append({"input": test_input, "passed": True})
@@ -180,18 +228,32 @@ except Exception as e:
                 
         except Exception as e:
             print(f"Container error: {e}")
-            results_log.append({"input": test_input, "passed": False, "error": str(e)})
+            results_log.append({"input": test_input, "passed": False, "error": "Docker container error"})
 
     is_perfect = (passed_count == total_tests)
     execution_duration = round(time.time() - start_time, 3)
     
+    # Advanced Complexity Calculation
+    complexity = calculate_complexity(code, passed_count, total_tests, execution_duration)
+    
+    # Metaphor Logic with more options
     if execution_duration < 0.2:
-        metaphor = "Cheetah"
+        metaphor = "Cheetah 🐆"
+        speed_rating = "Lightning Fast!"
     elif execution_duration < 0.5:
-        metaphor = "Human"
+        metaphor = "Eagle 🦅"
+        speed_rating = "Very Fast!"
+    elif execution_duration < 1.0:
+        metaphor = "Human 🏃"
+        speed_rating = "Average Speed"
+    elif execution_duration < 2.0:
+        metaphor = "Turtle 🐢"
+        speed_rating = "Slow"
     else:
-        metaphor = "Snail"
+        metaphor = "Snail 🐌"
+        speed_rating = "Very Slow"
 
+    # Save submission
     try:
         log_entry = {
             "user_id": user_id,
@@ -216,9 +278,56 @@ except Exception as e:
         "total_tests": total_tests,
         "results": results_log,
         "speed_metaphor": metaphor,
-        "duration": execution_duration
+        "speed_rating": speed_rating,
+        "complexity": complexity,
+        "duration": execution_duration,
+        "has_infinite_loop": has_infinite_loop,
+        "has_memory_error": has_memory_error
     }
 
+def get_friendly_error_message(error_code: str):
+    """Return child-friendly error messages"""
+    errors = {
+        "ERROR_INFINITE_LOOP": "🔄 Oops! Your code has an infinite loop! Make sure your loop has a way to stop. Try adding a condition that eventually becomes False.",
+        "ERROR_MEMORY": "💾 Whoa! Your code is using too much memory! Try using less data or freeing memory when you're done with it.",
+        "ERROR_INDEX_OUT_OF_BOUNDS": "📚 You're trying to access an element that doesn't exist! Like trying to open a book that only has 10 pages at page 11. Check your array/list bounds.",
+        "ERROR_DIVISION_BY_ZERO": "➗ Uh-oh! You can't divide a number by zero! It's like trying to split a pizza among 0 friends. Make sure your divisor is not zero.",
+        "ERROR_TYPE_MISMATCH": "🔤 You're mixing different types! Like trying to add a number to a word. Make sure all your variables are the same type.",
+        "ERROR_NAME_NOT_DEFINED": "❓ You're using a variable that hasn't been created yet! Like talking about a friend you haven't met. Define your variable before using it.",
+        "ERROR_GENERAL": "⚠️ Something unexpected happened! Read the error message carefully and check your code."
+    }
+    return errors.get(error_code, "⚠️ Something went wrong. Check your code and try again!")
+
+def calculate_complexity(code: str, passed_tests: int, total_tests: int, duration: float):
+    """Calculate code complexity based on various factors"""
+    lines = len(code.split('\n'))
+    loops = code.count('for ') + code.count('while ')
+    functions = code.count('def ')
+    nested_loops = code.count('for ') + code.count('while ') * 2
+    
+    complexity_score = (lines * 0.5) + (loops * 5) + (functions * 3) + (nested_loops * 2)
+    
+    if complexity_score < 10:
+        level = "Simple 🎈"
+        advice = "Great job! Your code is clean and efficient."
+    elif complexity_score < 25:
+        level = "Moderate 📚"
+        advice = "Good structure! Consider breaking complex parts into smaller functions."
+    elif complexity_score < 50:
+        level = "Complex 🧩"
+        advice = "Your code works, but try to simplify it. Remember the KISS principle (Keep It Simple, Student)!"
+    else:
+        level = "Advanced 🚀"
+        advice = "Wow! Very sophisticated solution. Just make sure it's still readable for others."
+    
+    return {
+        "level": level,
+        "score": round(complexity_score, 2),
+        "lines": lines,
+        "loops": loops,
+        "functions": functions,
+        "advice": advice
+    }
 
 @app.get("/missions")
 async def get_all_missions():
