@@ -9,6 +9,8 @@ import time
 from datetime import datetime, timezone
 from typing import Optional
 from supabase import ClientOptions 
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
+from pydantic import EmailStr
 
 # --- SETUP ---
 load_dotenv()
@@ -28,7 +30,17 @@ client = docker.from_env()
 
 app = FastAPI()
 
-# Allow your Angular frontend to talk to this backend
+email_config = ConnectionConfig(
+    MAIL_USERNAME=os.getenv("SMTP_USER"),
+    MAIL_PASSWORD=os.getenv("SMTP_PASSWORD"),
+    MAIL_FROM=os.getenv("SMTP_USER"),
+    MAIL_PORT=int(os.getenv("SMTP_PORT", 587)),
+    MAIL_SERVER=os.getenv("SMTP_HOST", "smtp.gmail.com"),
+    MAIL_STARTTLS=True,
+    MAIL_SSL_TLS=False,
+    USE_CREDENTIALS=True,
+    VALIDATE_CERTS=True
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:4200"],
@@ -477,6 +489,159 @@ async def create_profile(payload: dict = Body(...)):  # ← remove authorization
         return {"status": "success", "data": response.data}
     except Exception as e:
         print(f"Create profile error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/enquiries")
+async def create_enquiry(payload: dict = Body(...)):
+    try:
+        user_id = payload.get("user_id")
+        name = payload.get("name")
+        email = payload.get("email")
+        message = payload.get("message")
+        
+        if not name or not email or not message:
+            raise HTTPException(status_code=400, detail="Name, email, and message are required")
+        
+        enquiry_data = {
+            "user_id": user_id,
+            "name": name,
+            "email": email,
+            "message": message,
+            "status": "pending"
+        }
+        
+        # ✅ Use supabase_admin to bypass RLS — backend is the trusted layer
+        response = supabase_admin.table("enquiries").insert(enquiry_data).execute()
+        
+        return {"status": "success", "message": "Enquiry submitted successfully", "data": response.data}
+        
+    except Exception as e:
+        print(f"Enquiry creation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/admin/enquiries")
+async def get_all_enquiries():
+    try:
+        response = supabase_admin.table("enquiries") \
+            .select("*") \
+            .order("created_at", desc=True) \
+            .execute()
+        return response.data
+    except Exception as e:
+        print(f"Enquiries Fetch Error: {e}")
+        raise HTTPException(status_code=500, detail="Could not retrieve enquiries")
+
+
+@app.put("/admin/enquiries/{enquiry_id}/status")
+async def update_enquiry_status(enquiry_id: str, payload: dict = Body(...)):
+    try:
+        status = payload.get("status")
+        response = supabase_admin.table("enquiries") \
+            .update({"status": status}) \
+            .eq("id", enquiry_id) \
+            .execute()
+        return {"status": "success", "data": response.data}
+    except Exception as e:
+        print(f"Status update error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    
+@app.put("/admin/enquiries/{enquiry_id}/reply")
+async def reply_to_enquiry(enquiry_id: str, payload: dict = Body(...)):
+    try:
+        reply_message = payload.get("reply_message")
+        status = payload.get("status", "replied")
+        
+        # First, get the enquiry to get user's email
+        enquiry = supabase_admin.table("enquiries") \
+            .select("*") \
+            .eq("id", enquiry_id) \
+            .execute()
+        
+        if not enquiry.data:
+            raise HTTPException(status_code=404, detail="Enquiry not found")
+        
+        enquiry_data = enquiry.data[0]
+        user_email = enquiry_data.get("email")
+        user_name = enquiry_data.get("name")
+        
+        # Update the reply in database
+        response = supabase_admin.table("enquiries") \
+            .update({
+                "reply_message": reply_message,
+                "status": status,
+                "replied_at": datetime.now(timezone.utc).isoformat()
+            }) \
+            .eq("id", enquiry_id) \
+            .execute()
+        
+        # Prepare email content
+        email_body = f"""
+        <html>
+        <head>
+            <style>
+                body {{ font-family: 'Comic Sans MS', cursive; background: #f9f4e8; margin: 0; padding: 20px; }}
+                .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
+                .header {{ background: linear-gradient(145deg, #FF8C42, #E67E22); color: white; padding: 30px; text-align: center; }}
+                .content {{ padding: 30px; }}
+                .reply-box {{ background: #FFF3E0; padding: 20px; border-radius: 20px; border-left: 5px solid #FF8C42; margin: 20px 0; }}
+                .button {{ background: #2ECC71; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; display: inline-block; font-weight: bold; }}
+                .footer {{ background: #f0f0f0; padding: 15px; text-align: center; color: #7F8C8D; font-size: 12px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🚀 ABC-ODE </h1>
+                </div>
+                <div class="content">
+                    <h2>Hello {user_name}! 👋</h2>
+                    <p>Thank you for reaching out to us. Here's the response from our support team:</p>
+                    
+                    <div class="reply-box">
+                        <strong>📨 Admin Response:</strong>
+                        <p style="margin-top: 10px;">{reply_message}</p>
+                    </div>
+                    
+                    <p>If you have any more questions, feel free to submit another enquiry through our platform.</p>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="http://localhost:4200" class="button">🎮 Continue Coding</a>
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>⭐ Keep coding and saving the galaxy! ⭐</p>
+                    <p>&copy; 2024 ABC-ODE Space Academy</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Send email using fastapi-mail
+        message = MessageSchema(
+            subject="Response to your enquiry - ABC-ODE Support",
+            recipients=[user_email],
+            body=email_body,
+            subtype="html"
+        )
+        
+        fm = FastMail(email_config)
+        await fm.send_message(message)
+        
+        print(f"✅ Email sent to {user_email}")
+        
+        return {
+            "status": "success", 
+            "data": response.data,
+            "email_sent": True,
+            "message": "Reply sent and email delivered successfully"
+        }
+        
+    except Exception as e:
+        print(f"Reply error: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

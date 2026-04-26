@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth';
-import { UserService } from '../user.service'; // Import the service
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-mission-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './mission-list.html',
   styleUrl: './mission-list.css'
 })
@@ -20,6 +21,17 @@ export class MissionListComponent implements OnInit {
   currentUserId: string | null = null;
   dailyTip: string = "";
   isLoading: boolean = true;
+  isAdmin: boolean = false;
+  
+  // Enquiry properties
+  enquiryData = {
+    name: '',
+    email: '',
+    message: ''
+  };
+  isSubmitting: boolean = false;
+  enquirySuccess: boolean = false;
+  enquiryError: string = '';
   
   private tips: string[] = [
     "⚡ Use print() to see what your code is doing!",
@@ -34,7 +46,7 @@ export class MissionListComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private userService: UserService // Inject the service
+    private userService: UserService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -46,6 +58,7 @@ export class MissionListComponent implements OnInit {
         this.heroName = user.heroName;
         this.xp = user.xp;
         this.currentUserId = user.userId;
+        this.enquiryData.name = user.heroName;
       }
     });
 
@@ -54,11 +67,26 @@ export class MissionListComponent implements OnInit {
       this.currentUserId = user.id;
       // Load profile through service
       this.userService.loadUserProfile(user.id);
+      // Also load profile directly to check admin role
+      this.loadUserProfile(user.id);
     }
     
     // Load missions and leaderboard
     this.loadMissions();
     this.loadLeaderboard();
+  }
+  
+  loadUserProfile(userId: string): void {
+    this.http.get(`http://127.0.0.1:8000/profile/${userId}`).subscribe({
+      next: (profile: any) => {
+        if (profile) {
+          this.heroName = profile.hero_name || 'Hero';
+          this.xp = profile.xp_points || 0;
+          this.isAdmin = profile.role === 'admin';
+        }
+      },
+      error: (err) => console.error("Profile failed to load", err)
+    });
   }
   
   getLevel(xp: number): number {
@@ -118,5 +146,58 @@ export class MissionListComponent implements OnInit {
     } else {
       setTimeout(() => this.isLoading = false, 3000);
     }
+  }
+
+  // Submit Enquiry
+  async submitEnquiry() {
+    if (!this.enquiryData.name.trim()) {
+      this.enquiryError = 'Please enter your name!';
+      setTimeout(() => this.enquiryError = '', 3000);
+      return;
+    }
+    
+    if (!this.enquiryData.email.trim() || !this.enquiryData.email.includes('@')) {
+      this.enquiryError = 'Please enter a valid email address!';
+      setTimeout(() => this.enquiryError = '', 3000);
+      return;
+    }
+    
+    if (!this.enquiryData.message.trim()) {
+      this.enquiryError = 'Please enter your message!';
+      setTimeout(() => this.enquiryError = '', 3000);
+      return;
+    }
+    
+    this.isSubmitting = true;
+    this.enquiryError = '';
+    this.enquirySuccess = false;
+    
+    const payload = {
+      user_id: this.currentUserId,
+      name: this.enquiryData.name,
+      email: this.enquiryData.email,
+      message: this.enquiryData.message
+    };
+    
+    console.log('Sending payload:', payload);
+    
+    this.http.post('http://127.0.0.1:8000/enquiries', payload).subscribe({
+      next: (res: any) => {
+        console.log('Success:', res);
+        this.isSubmitting = false;
+        this.enquirySuccess = true;
+        this.enquiryData = { name: '', email: '', message: '' };
+        if (this.heroName !== 'Commander') {
+          this.enquiryData.name = this.heroName;
+        }
+        setTimeout(() => this.enquirySuccess = false, 5000);
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        this.isSubmitting = false;
+        this.enquiryError = err.error?.detail || 'Failed to send message. Please try again!';
+        setTimeout(() => this.enquiryError = '', 5000);
+      }
+    });
   }
 }

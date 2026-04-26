@@ -1,5 +1,5 @@
 <nav class="navbar">
-  <h1 routerLink="/">🚀 ABC-ODE</h1>
+  <h1 routerLink="/">🚀 ABC-ODE </h1>
   
   <div class="user-stats">
     <!-- Show when logged in -->
@@ -8,6 +8,11 @@
         <span class="greeting">👋 Hi,</span>
         <span class="name">{{ heroName }}</span>
       </div>
+
+      <!-- Admin Link - Only shows for admin users -->
+      <button *ngIf="isAdmin" class="admin-nav-btn" routerLink="/admin">
+        🛸 ADMIN DASHBOARD
+      </button>
 
       <button class="logout-link" (click)="logout()">
         <span class="logout-icon">🚪</span>

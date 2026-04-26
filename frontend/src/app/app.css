@@ -266,3 +266,33 @@ body {
   box-shadow: 0 8px 0 #9B4A0E;
   background: #FFE5B4;
 }
+/* Admin Nav Button */
+.admin-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  color: #E67E22;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 900;
+  transition: all 0.2s;
+  box-shadow: 0 4px 0 #9B4A0E;
+  border: 2px solid #FFD4A8;
+  font-family: 'Fredoka One', cursive;
+}
+
+.admin-nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #9B4A0E;
+  background: #FFE5B4;
+  color: #E67E22;
+}
+
+.admin-nav-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #9B4A0E;
+}
