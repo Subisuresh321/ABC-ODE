@@ -215,17 +215,36 @@ async def get_all_missions():
 
 
 @app.post("/add-xp")
-async def add_xp(payload: dict = Body(...)):
-    user_id = payload.get("user_id")
-    xp_to_add = payload.get("xp_to_add")
-    
-    user = supabase.table("profiles").select("xp_points").eq("id", user_id).single().execute()
-    new_xp = (user.data['xp_points'] or 0) + xp_to_add
-    
-    supabase.table("profiles").update({"xp_points": new_xp}).eq("id", user_id).execute()
-    
-    return {"status": "success", "new_xp": new_xp}
-
+async def add_xp(
+    payload: dict = Body(...),
+    authorization: Optional[str] = Header(None)
+):
+    try:
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Missing authorization token")
+        
+        token = authorization.replace("Bearer ", "")
+        auth_client = get_authenticated_client(token)
+        
+        user_id = payload.get("user_id")
+        xp_to_add = payload.get("xp_to_add")
+        
+        user = auth_client.table("profiles").select("xp_points").eq("id", user_id).execute()
+        
+        if not user.data:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        current_xp = user.data[0].get('xp_points', 0)
+        new_xp = current_xp + xp_to_add
+        
+        auth_client.table("profiles").update({"xp_points": new_xp}).eq("id", user_id).execute()
+        
+        return {"status": "success", "new_xp": new_xp}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/profile/{user_id}")
 async def get_profile(user_id: str):
