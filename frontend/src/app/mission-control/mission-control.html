@@ -82,8 +82,10 @@
 
   <!-- XP Success Message -->
   <div *ngIf="showSuccessMessage" class="success-popup">
-    🎉 +{{ mission?.xp_reward }} XP EARNED! 🎉
-  </div>
+  🎉 +{{ earnedXP }} XP EARNED! 
+  <span *ngIf="showPartialMessage">({{ passedTestsCount }}/{{ totalTestsCount }} tests passed)</span>
+  🎉
+</div>
 </div>
 
 <ng-template #loading>

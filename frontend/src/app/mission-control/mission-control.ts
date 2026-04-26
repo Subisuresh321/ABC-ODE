@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -22,6 +22,10 @@ export class MissionControlComponent implements OnInit {
   submissionHistory: any[] = [];
   isRunning: boolean = false;
   showSuccessMessage: boolean = false;
+  earnedXP: number = 0; 
+  passedTestsCount: number = 0;
+  totalTestsCount: number = 0;
+  showPartialMessage: boolean = false;
 
   codeMirrorOptions = {
     lineNumbers: true,
@@ -69,62 +73,99 @@ export class MissionControlComponent implements OnInit {
   }
 
   runCode() {
-    if (!this.currentUserId) {
-      alert("Please login to run missions!");
-      this.router.navigate(['/login']);
-      return;
+  if (!this.currentUserId) {
+    alert("Please login to run missions!");
+    this.router.navigate(['/login']);
+    return;
+  }
+
+  this.isRunning = true;
+  
+  const payload = {
+    code: this.mission.starter_code,
+    test_cases: this.mission.test_cases,
+    user_id: this.currentUserId,
+    problem_id: this.mission.id
+  };
+
+  this.http.post('http://127.0.0.1:8000/run', payload).subscribe({
+    next: (res: any) => {
+      this.runResult = res;
+      this.isRunning = false;
+      
+      // Store these for XP calculation
+      console.log('Run result:', {
+        status: res.status,
+        passed_tests: res.passed_tests,
+        total_tests: res.total_tests
+      });
+      
+      // Always call handleMissionSuccess (it will check if XP should be added)
+      this.handleMissionSuccess();
+      
+      // Refresh history
+      this.loadHistory();
+    },
+    error: (err) => {
+      console.error("Run failed:", err);
+      this.isRunning = false;
+      alert("🚨 Launch failed! Space communication error.");
     }
+  });
+}
 
-    this.isRunning = true;
-    
-    const payload = {
-      code: this.mission.starter_code,
-      test_cases: this.mission.test_cases,
-      user_id: this.currentUserId,
-      problem_id: this.mission.id
-    };
+  async handleMissionSuccess() {
+  if (!this.currentUserId || !this.mission) return;
 
-    this.http.post('http://127.0.0.1:8000/run', payload).subscribe({
-      next: (res: any) => {
-        this.runResult = res;
-        this.isRunning = false;
-        
-        if (res.status === 'Success') {
-          this.handleMissionSuccess();
-        }
-        
-        // Refresh history
-        this.loadHistory();
-      },
-      error: (err) => {
-        console.error("Run failed:", err);
-        this.isRunning = false;
-        alert("🚨 Launch failed! Space communication error.");
-      }
-    });
+  // Get the auth token (same as profile update)
+  const { data: { session } } = await this.authService.getSession();
+  const token = session?.access_token;
+  
+  if (!token) {
+    console.error('No auth token found');
+    return;
   }
 
-  handleMissionSuccess() {
-    if (!this.currentUserId || !this.mission) return;
-
-    const xpPayload = {
-      user_id: this.currentUserId,
-      xp_to_add: this.mission.xp_reward
-    };
-
-    this.http.post('http://127.0.0.1:8000/add-xp', xpPayload).subscribe({
-      next: (res: any) => {
-        this.showSuccessMessage = true;
-        setTimeout(() => this.showSuccessMessage = false, 3000);
-        
-        // Dispatch event to update navbar
-        window.dispatchEvent(new CustomEvent('xp-updated', { 
-          detail: { userId: this.currentUserId } 
-        }));
-      },
-      error: (err) => console.error("XP update failed:", err)
-    });
+  const totalTests = this.runResult?.total_tests || 0;
+  const passedTests = this.runResult?.passed_tests || 0;
+  const totalXPReward = this.mission.xp_reward || 0;
+  
+  let xpEarned = 0;
+  if (totalTests > 0) {
+    xpEarned = Math.floor((passedTests / totalTests) * totalXPReward);
   }
+  
+  if (xpEarned === 0) return;
+
+  this.earnedXP = xpEarned;
+  this.passedTestsCount = passedTests;
+  this.totalTestsCount = totalTests;
+  this.showPartialMessage = (xpEarned < totalXPReward);
+
+  const xpPayload = {
+    user_id: this.currentUserId,
+    xp_to_add: xpEarned
+  };
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  this.http.post('http://127.0.0.1:8000/add-xp', xpPayload, { headers }).subscribe({
+    next: (res: any) => {
+      console.log('✅ XP added successfully:', res);
+      this.showSuccessMessage = true;
+      setTimeout(() => this.showSuccessMessage = false, 3000);
+      
+      window.dispatchEvent(new CustomEvent('xp-updated', { 
+        detail: { userId: this.currentUserId, newXP: res.new_xp } 
+      }));
+    },
+    error: (err) => {
+      console.error('❌ XP update failed:', err);
+    }
+  });
+}
 
   loadHistory() {
     if (!this.currentUserId || !this.mission?.id) return;
