@@ -1,0 +1,80 @@
+.admin-navbar {
+  background: linear-gradient(145deg, #2C3E50, #1E2B38);
+  color: white;
+  padding: 0 30px;
+  box-shadow: 0 8px 0 #1A252F;
+  border-bottom: 3px solid #FFB347;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-nav-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+}
+
+.admin-logo h2 {
+  font-family: 'Fredoka One', cursive;
+  margin: 0;
+  text-shadow: 3px 3px 0 #1A252F;
+  color: #FFD966;
+}
+
+.admin-nav-links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.admin-nav-links button {
+  padding: 10px 25px;
+  background: transparent;
+  border: 2px solid #FFB347;
+  color: white;
+  border-radius: 40px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.admin-nav-links button:hover {
+  background: #FFB347;
+  color: #2C3E50;
+  transform: translateY(-2px);
+}
+
+.admin-nav-links button.active {
+  background: #FFB347;
+  color: #2C3E50;
+  box-shadow: 0 4px 0 #C55A11;
+}
+
+.back-to-home {
+  background: #E74C3C !important;
+  border-color: #E74C3C !important;
+}
+
+.back-to-home:hover {
+  background: #C0392B !important;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .admin-nav-content {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+  }
+  
+  .admin-nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 10px;
+  }
+}

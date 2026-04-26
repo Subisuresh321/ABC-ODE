@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   heroName = 'Recruit';
   xp = 0;
   currentUserId: string | null = null;
+  isAdmin: boolean = false;  // Add this property
 
   constructor(
     private authService: AuthService, 
@@ -44,6 +45,7 @@ export class AppComponent implements OnInit {
           this.heroName = 'Recruit';
           this.xp = 0;
           this.currentUserId = null;
+          this.isAdmin = false;
         }
       });
     });
@@ -73,6 +75,7 @@ export class AppComponent implements OnInit {
           this.ngZone.run(() => {
             this.heroName = data.hero_name || 'Recruit';
             this.xp = data.xp_points || 0;
+            this.isAdmin = data.role === 'admin'; // Check if user is admin
           });
           resolve(true);
         },
