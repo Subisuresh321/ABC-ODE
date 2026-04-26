@@ -34,6 +34,7 @@ export class MissionControlComponent implements OnInit {
     indentUnit: 4,
     lineWrapping: true,
     foldGutter: true,
+    fontSize: '22px',
     gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
   };
 

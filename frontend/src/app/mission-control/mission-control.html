@@ -14,6 +14,20 @@
     </div>
   </div>
 
+  <!-- Hints Section -->
+<div class="hints-section" *ngIf="mission.hints && mission.hints.length > 0">
+  <h4>💡 Need a Hint?</h4>
+  <div class="hints-container">
+    <div *ngFor="let hint of mission.hints; let i = index" class="hint-card">
+      <div class="hint-icon">🔍</div>
+      <div class="hint-content">
+        <div class="hint-question">Hint {{ i + 1 }}</div>
+        <div class="hint-answer">{{ hint }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
   <!-- Editor Section -->
   <div class="editor-section">
     <ngx-codemirror
@@ -37,20 +51,46 @@
     </div>
 
     <div class="test-grid">
-      <div *ngFor="let res of runResult.results; let i = index" 
-           class="test-chip" 
-           [ngClass]="res.passed ? 'pass' : 'fail'">
-        <span>{{ res.passed ? '✅' : '❌' }}</span>
-        <span>Test #{{ i + 1 }}</span>
-        <code>Input: {{ res.input }}</code>
-        <span *ngIf="!res.passed">
-          → Expected: {{ res.expected }}, Got: {{ res.actual }}
-        </span>
-        <span *ngIf="res.passed" style="color: #2ECC71; font-weight: 900;">
-          ✓ Passed!
-        </span>
-      </div>
+  <div *ngFor="let res of runResult.results; let i = index" 
+       class="test-chip" 
+       [ngClass]="res.passed ? 'pass' : 'fail'">
+    <span>{{ res.passed ? '✅' : '❌' }}</span>
+    <span>Test #{{ i + 1 }}</span>
+    <code>Input: {{ res.input }}</code>
+    <span *ngIf="!res.passed && !res.error">
+      → Expected: {{ res.expected }}, Got: {{ res.actual }}
+    </span>
+    <span *ngIf="res.error" class="error-message">
+      → {{ res.error }}
+    </span>
+    <span *ngIf="res.passed" style="color: #2ECC71; font-weight: 900;">
+      ✓ Passed!
+    </span>
+  </div>
+</div>
+
+<!-- Add Complexity Display -->
+<div class="complexity-card" *ngIf="runResult.complexity">
+  <h4>📊 Code Complexity Analysis</h4>
+  <div class="complexity-stats">
+    <div class="stat">
+      <span class="stat-label">Complexity Level:</span>
+      <span class="stat-value">{{ runResult.complexity.level }}</span>
     </div>
+    <div class="stat">
+      <span class="stat-label">Score:</span>
+      <span class="stat-value">{{ runResult.complexity.score }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Lines:</span>
+      <span class="stat-value">{{ runResult.complexity.lines }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Advice:</span>
+      <span class="stat-value">{{ runResult.complexity.advice }}</span>
+    </div>
+  </div>
+</div>
   </div>
 
   <!-- History Section - MOVED OUTSIDE editor-section -->
