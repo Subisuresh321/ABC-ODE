@@ -1,7 +1,7 @@
 <nav class="admin-navbar">
   <div class="admin-nav-content">
     <div class="admin-logo">
-      <h2>🛸 Admin Command Center</h2>
+      <h2>🛸 Admin Dashboard</h2>
     </div>
     <div class="admin-nav-links">
       <button [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">
@@ -9,6 +9,9 @@
       </button>
       <button [class.active]="activeTab === 'missions'" (click)="setActiveTab('missions')">
         🛠️ Add Missions
+      </button>
+      <button [class.active]="activeTab === 'manage'" (click)="setActiveTab('manage')">
+        🧩 Manage Missions
       </button>
       <button [class.active]="activeTab === 'enquiries'" (click)="setActiveTab('enquiries')">
         📬 View Enquiries
