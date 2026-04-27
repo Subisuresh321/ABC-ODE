@@ -95,6 +95,45 @@ async def get_mission(mission_id: str):
         return response.data[0]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.put("/mission/{mission_id}")
+async def update_mission(mission_id: str, payload: dict = Body(...)):
+    try:
+        update_data = {
+            "title": payload.get("title"),
+            "story": payload.get("story"),
+            "starter_code": payload.get("starter_code"),
+            "difficulty": payload.get("difficulty"),
+            "category": payload.get("category"),
+            "test_cases": payload.get("test_cases"),
+            "xp_reward": int(payload.get("xp_reward", 0)),
+            "hints": payload.get("hints", []),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        response = supabase.table("problems") \
+            .update(update_data) \
+            .eq("id", mission_id) \
+            .execute()
+        
+        return {"status": "success", "data": response.data}
+    except Exception as e:
+        print(f"Mission update error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/mission/{mission_id}")
+async def delete_mission(mission_id: str):
+    try:
+        # First, delete all submissions for this mission
+        supabase.table("submissions").delete().eq("problem_id", mission_id).execute()
+        
+        # Then delete the mission
+        response = supabase.table("problems").delete().eq("id", mission_id).execute()
+        
+        return {"status": "success", "message": "Mission and all submissions deleted"}
+    except Exception as e:
+        print(f"Mission delete error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/run")

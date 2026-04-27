@@ -2,7 +2,8 @@
   <app-admin-navbar (tabChange)="onTabChange($event)"></app-admin-navbar>
   
   <div class="admin-content">
-    <!-- Users Tab -->
+    
+    <!-- USERS TAB -->
     <div *ngIf="activeTab === 'users'" class="tab-content">
       <div class="admin-section">
         <h3>👥 Hero Directory</h3>
@@ -17,23 +18,25 @@
             <span>Action</span>
           </div>
           <div *ngFor="let user of filteredUsers" class="user-row">
-            <span class="u-name">{{ user.hero_name }}</span>
-            <span class="u-xp">{{ user.xp_points }}</span>
+            <span class="u-name">{{ user.hero_name || 'Unknown' }}</span>
+            <span class="u-xp">{{ user.xp_points || 0 }}</span>
             <button [routerLink]="['/profile', user.id]" class="audit-btn">Audit Code</button>
+          </div>
+          <div *ngIf="filteredUsers.length === 0" class="no-data">
+            👥 No heroes found
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Missions Tab -->
+    <!-- MISSIONS TAB (Creator) -->
     <div *ngIf="activeTab === 'missions'" class="tab-content">
       <div class="admin-section">
         <h3>🛠️ Mission Creator</h3>
         
         <div class="form-group">
           <label>🎯 Mission Title</label>
-          <input [(ngModel)]="newMission.title" placeholder="e.g., The Tallest Stone" class="modern-input">
-          <small>Give your mission an epic name</small>
+          <input [(ngModel)]="newMission.title" placeholder="Mission title" class="modern-input">
         </div>
 
         <div class="form-group">
@@ -63,66 +66,51 @@
         <div class="form-group">
           <label>📂 Category</label>
           <select [(ngModel)]="newMission.category" class="modern-select">
-            <option value="" disabled>Select a category</option>
-            <option value="Arrays">📊 Arrays</option>
-            <option value="Strings">📝 Strings</option>
-            <option value="Loops">🔄 Loops</option>
-            <option value="Functions">⚙️ Functions</option>
-            <option value="Logic">🧠 Logic</option>
-            <option value="Math">🔢 Math</option>
+            <option value="">Select category</option>
+            <option value="Arrays">Arrays</option>
+            <option value="Strings">Strings</option>
+            <option value="Loops">Loops</option>
+            <option value="Functions">Functions</option>
+            <option value="Logic">Logic</option>
+            <option value="Math">Math</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>⭐ XP Reward</label>
-          <div class="xp-slider-container">
-            <input type="range" 
-                   [(ngModel)]="newMission.xp_reward" 
-                   min="10" 
-                   max="500" 
-                   step="10"
-                   class="xp-slider">
-            <span class="xp-value">{{ newMission.xp_reward || 100 }} XP</span>
-          </div>
+          <input type="number" [(ngModel)]="newMission.xp_reward" class="modern-input">
         </div>
 
         <div class="form-group">
-          <label>📖 Story / Instructions</label>
-          <textarea [(ngModel)]="newMission.story" 
-                    placeholder="Create an engaging story for young heroes..."
-                    rows="4"
-                    class="modern-textarea"></textarea>
-          <small>Write a fun story that explains the mission</small>
+          <label>📖 Story</label>
+          <textarea [(ngModel)]="newMission.story" rows="4" class="modern-textarea"></textarea>
         </div>
 
         <div class="form-group">
           <label>💻 Starter Code</label>
-          <textarea [(ngModel)]="newMission.starter_code" 
-                    placeholder="def solve(stones):\n    # Write your magic here\n    return max(stones)"
-                    rows="6"
-                    class="code-editor"></textarea>
-          <small>Provide initial code structure for the hero</small>
+          <textarea [(ngModel)]="newMission.starter_code" rows="6" class="code-editor"></textarea>
         </div>
 
-        <div class="form-group">
-          <label>🧪 Test Cases</label>
-          <div class="test-cases-builder">
-            <div *ngFor="let test of testCasesList; let i = index" class="test-case-item">
-              <div class="test-case-inputs">
-                <input [(ngModel)]="test.input" 
-                       placeholder="Input (e.g., [1,5,3] or 10,5)"
-                       class="test-input">
-                <input [(ngModel)]="test.expected" 
-                       placeholder="Expected output"
-                       class="test-expected">
-                <button type="button" (click)="removeTestCase(i)" class="remove-test">✖</button>
-              </div>
-            </div>
-            <button type="button" (click)="addTestCase()" class="add-test-btn">➕ Add Test Case</button>
-          </div>
-        </div>
+        <!-- Replace the test cases JSON textarea with this -->
+<div class="form-group">
+  <label>🧪 Test Cases</label>
+  <div class="test-cases-builder">
+    <div *ngFor="let test of testCasesList; let i = index" class="test-case-item">
+      <div class="test-case-inputs">
+        <input [(ngModel)]="test.input" 
+               placeholder="Input (e.g., [1,5,3] or 10,5)"
+               class="test-input">
+        <input [(ngModel)]="test.expected" 
+               placeholder="Expected output"
+               class="test-expected">
+        <button type="button" (click)="removeTestCase(i)" class="remove-test">✖</button>
+      </div>
+    </div>
+    <button type="button" (click)="addTestCase()" class="add-test-btn">➕ Add Test Case</button>
+  </div>
+</div>
 
-        <div class="form-group">
+<div class="form-group">
           <label>💡 Hints (Optional)</label>
           <div class="hints-builder">
             <div *ngFor="let hint of hintsList; let i = index" class="hint-item">
@@ -133,38 +121,66 @@
           </div>
         </div>
 
-        <button (click)="saveMission()" class="save-btn" [disabled]="!isMissionValid()">
-          🚀 SAVE MISSION
-        </button>
+        <button (click)="saveMission()" class="save-btn">🚀 SAVE MISSION</button>
       </div>
     </div>
 
-    <!-- Enquiries Tab -->
+    <!-- MANAGE MISSIONS TAB -->
+    <div *ngIf="activeTab === 'manage'" class="tab-content">
+      <div class="admin-section">
+        <h3>🧩 Manage Missions</h3>
+        
+        <div class="search-bar">
+          <input type="text" [(ngModel)]="missionSearchTerm" (input)="filterMissions()" placeholder="Search missions...">
+        </div>
+        
+        <div class="missions-list">
+          <div class="missions-header">
+            <span>Title</span>
+            <span>Category</span>
+            <span>Difficulty</span>
+            <span>XP</span>
+            <span>Actions</span>
+          </div>
+          
+          <div *ngFor="let mission of filteredMissions" class="mission-row">
+            <div class="mission-title">{{ mission.title }}</div>
+            <div>{{ mission.category }}</div>
+            <div><span class="difficulty-badge" [class]="mission.difficulty?.toLowerCase()">{{ mission.difficulty }}</span></div>
+            <div>{{ mission.xp_reward }}</div>
+            <div class="mission-actions">
+              <button class="edit-mission-btn" (click)="openEditMissionModal(mission)">Edit</button>
+              <button class="delete-mission-btn" (click)="confirmDeleteMission(mission)">Delete</button>
+            </div>
+          </div>
+          
+          <div *ngIf="filteredMissions.length === 0" class="no-data">
+            📭 No missions found
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENQUIRIES TAB -->
     <div *ngIf="activeTab === 'enquiries'" class="tab-content">
       <div class="admin-section">
-        <h3>📬 Customer Enquiries</h3>
+        <h3>📬 Enquiries</h3>
         
         <div class="enquiries-filters">
           <select [(ngModel)]="enquiryFilter" (change)="filterEnquiries()" class="filter-select">
             <option value="all">All Enquiries</option>
-            <option value="pending">Pending ⏳</option>
-            <option value="read">Read 📖</option>
-            <option value="replied">Replied ✅</option>
-            <option value="closed">Closed 🔒</option>
+            <option value="pending">Pending</option>
+            <option value="read">Read</option>
+            <option value="replied">Replied</option>
+            <option value="closed">Closed</option>
           </select>
         </div>
 
         <div class="enquiries-list">
-          <div *ngFor="let enquiry of filteredEnquiries" 
-               class="enquiry-card" 
-               [class.replied]="enquiry.status === 'replied'"
-               [class.pending]="enquiry.status === 'pending'"
-               (click)="selectEnquiry(enquiry)">
+          <div *ngFor="let enquiry of filteredEnquiries" class="enquiry-card" (click)="selectEnquiry(enquiry)">
             <div class="enquiry-header">
               <span class="enquiry-name">{{ enquiry.name }}</span>
-              <span class="enquiry-status" [ngClass]="enquiry.status">
-                {{ getStatusIcon(enquiry.status) }} {{ enquiry.status | uppercase }}
-              </span>
+              <span class="enquiry-status" [class]="enquiry.status">{{ enquiry.status | uppercase }}</span>
             </div>
             <div class="enquiry-details">
               <small>From: {{ enquiry.email }}</small> <br>
@@ -175,42 +191,133 @@
             </div>
           </div>
           
-          <div *ngIf="filteredEnquiries.length === 0" class="no-enquiries">
+          <div *ngIf="filteredEnquiries.length === 0" class="no-data">
             📭 No enquiries found
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
 <!-- Reply Modal -->
-<div class="modal" [class.show]="showReplyModal" (click)="closeModalOnBackdrop($event)">
+<div class="modal show" *ngIf="showReplyModal" (click)="closeModalOnBackdrop($event)">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>✉️ Reply to {{ selectedEnquiry?.name }}</h3>
+      <h3>Reply to {{ selectedEnquiry?.name }}</h3>
       <button class="close-btn" (click)="closeReplyModal()">✖</button>
     </div>
     <div class="modal-body">
       <div class="original-message">
         <strong>Original Message:</strong>
         <p>{{ selectedEnquiry?.message }}</p>
-        <small>From: {{ selectedEnquiry?.email }}</small>
       </div>
-      
-      <div class="form-group">
-        <label>💬 Your Reply</label>
-        <textarea [(ngModel)]="replyMessage" 
-                  placeholder="Type your reply here..."
-                  rows="5"
-                  class="reply-textarea"></textarea>
-      </div>
+      <textarea [(ngModel)]="replyMessage" placeholder="Type your reply..." rows="4" class="reply-textarea"></textarea>
     </div>
     <div class="modal-footer">
       <button class="cancel-btn" (click)="closeReplyModal()">Cancel</button>
-      <button class="send-reply-btn" (click)="sendReply()" [disabled]="!replyMessage.trim()">
-        📨 Send Reply
-      </button>
+      <button class="send-reply-btn" (click)="sendReply()">Send Reply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Mission Modal -->
+<div class="modal show" *ngIf="showEditModal" (click)="closeModalOnBackdrop($event)">
+  <div class="modal-content modal-large">
+    <div class="modal-header">
+      <h3>✏️ Edit Mission: {{ editingMission?.title }}</h3>
+      <button class="close-btn" (click)="closeEditModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>🎯 Mission Title</label>
+        <input [(ngModel)]="editingMission.title" class="modern-input" placeholder="Mission title">
+      </div>
+      
+      <div class="form-group">
+        <label>📂 Category</label>
+        <select [(ngModel)]="editingMission.category" class="modern-select">
+          <option value="">Select category</option>
+          <option value="Arrays">Arrays</option>
+          <option value="Strings">Strings</option>
+          <option value="Loops">Loops</option>
+          <option value="Functions">Functions</option>
+          <option value="Logic">Logic</option>
+          <option value="Math">Math</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>⚡ Difficulty</label>
+        <div class="difficulty-selector">
+          <button [class.active]="editingMission.difficulty === 'Easy'" (click)="editingMission.difficulty = 'Easy'" class="difficulty-btn easy">Easy</button>
+          <button [class.active]="editingMission.difficulty === 'Medium'" (click)="editingMission.difficulty = 'Medium'" class="difficulty-btn medium">Medium</button>
+          <button [class.active]="editingMission.difficulty === 'Hard'" (click)="editingMission.difficulty = 'Hard'" class="difficulty-btn hard">Hard</button>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>⭐ XP Reward</label>
+        <input type="number" [(ngModel)]="editingMission.xp_reward" class="modern-input">
+      </div>
+      
+      <div class="form-group">
+        <label>📖 Story / Instructions</label>
+        <textarea [(ngModel)]="editingMission.story" rows="4" class="modern-textarea"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>💻 Starter Code</label>
+        <textarea [(ngModel)]="editingMission.starter_code" rows="6" class="code-editor"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>🧪 Test Cases</label>
+        <div class="test-cases-builder">
+          <div *ngFor="let test of editTestCasesList; let i = index" class="test-case-item">
+            <div class="test-case-inputs">
+              <input [(ngModel)]="test.input" placeholder="Input" class="test-input">
+              <input [(ngModel)]="test.expected" placeholder="Expected output" class="test-expected">
+              <button type="button" (click)="removeEditTestCase(i)" class="remove-test">✖</button>
+            </div>
+          </div>
+          <button type="button" (click)="addEditTestCase()" class="add-test-btn">➕ Add Test Case</button>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>💡 Hints</label>
+        <div class="hints-builder">
+          <div *ngFor="let hint of editHintsList; let i = index" class="hint-item">
+            <input [(ngModel)]="hint.text" placeholder="Hint" class="hint-input">
+            <button type="button" (click)="removeEditHint(i)" class="remove-hint">✖</button>
+          </div>
+          <button type="button" (click)="addEditHint()" class="add-hint-btn">➕ Add Hint</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeEditModal()">Cancel</button>
+      <button class="save-btn" (click)="updateMission()" [disabled]="!isEditValid()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal show" *ngIf="showDeleteModal" (click)="closeModalOnBackdrop($event)">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3>🗑️ Delete Mission</h3>
+      <button class="close-btn" (click)="closeDeleteModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete <strong>{{ missionToDelete?.title }}</strong>?</p>
+      <p class="warning">⚠️ This will also delete all submissions for this mission!</p>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeDeleteModal()">Cancel</button>
+      <button class="delete-confirm-btn" (click)="deleteMission()">🗑️ Delete Forever</button>
     </div>
   </div>
 </div>
