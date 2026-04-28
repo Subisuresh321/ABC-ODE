@@ -565,3 +565,65 @@
   max-width: 400px;
   line-height: 1.4;
 }
+
+/* Test Cases Section */
+.test-cases-section {
+  margin: 20px 0;
+  padding: 20px;
+  background: linear-gradient(145deg, #F8F9FA, #E9ECEF);
+  border-radius: 30px;
+  border: 3px solid #01090e;
+}
+
+.test-cases-section h4 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.2rem;
+  color: #2C3E50;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.test-cases-grid {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid #000509;
+}
+
+.test-cases-header {
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr;
+  background: #ff760e;
+  color: white;
+  padding: 12px 15px;
+  font-weight: 800;
+}
+
+.test-case-row {
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  font-family: 'Courier New', monospace;
+}
+
+.test-case-row:last-child {
+  border-bottom: none;
+}
+
+.test-number {
+  font-weight: 800;
+  color: #fa8816;
+}
+
+.test-input, .test-expected {
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  color: #2C3E50;
+}
+
+.test-case-row:hover {
+  background: #F0F8FF;
+}

@@ -14,7 +14,25 @@
     </div>
   </div>
 
-  <!-- Hints Section -->
+
+  <!-- Test Cases Section - Visible BEFORE running code -->
+  <div class="test-cases-section" *ngIf="mission.test_cases && mission.test_cases.length > 0">
+    <h4>🧪 Test Cases </h4>
+    <div class="test-cases-grid">
+      <div class="test-cases-header">
+        <span>#</span>
+        <span>Input</span>
+        <span>Expected Output</span>
+      </div>
+      <div *ngFor="let test of mission.test_cases; let i = index" class="test-case-row">
+        <span class="test-number">{{ i + 1 }}</span>
+        <code class="test-input">{{ test.input }}</code>
+        <code class="test-expected">{{ test.expected }}</code>
+      </div>
+    </div>
+  </div>
+
+    <!-- Hints Section -->
 <div class="hints-section" *ngIf="mission.hints && mission.hints.length > 0">
   <h4>💡 Need a Hint?</h4>
   <div class="hints-container">
@@ -27,6 +45,7 @@
     </div>
   </div>
 </div>
+
 
   <!-- Editor Section -->
   <div class="editor-section">

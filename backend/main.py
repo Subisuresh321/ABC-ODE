@@ -370,7 +370,7 @@ def calculate_complexity(code: str, passed_tests: int, total_tests: int, duratio
 
 @app.get("/missions")
 async def get_all_missions():
-    response = supabase.table("problems").select("id", "title", "difficulty", "category").execute()
+    response = supabase.table("problems").select("id", "title", "difficulty", "category","xp_reward").execute()
     return response.data
 
 
@@ -570,6 +570,7 @@ async def get_leaderboard():
     try:
         response = supabase.table("profiles") \
             .select("id, hero_name, xp_points, avatar_url") \
+            .eq("role", "student") \
             .order("xp_points", desc=True) \
             .limit(10) \
             .execute()
@@ -590,7 +591,7 @@ async def add_mission(payload: dict = Body(...)):
             "starter_code": payload.get("starter_code"),
             "test_cases": payload.get("test_cases"),
             "xp_reward": int(payload.get("xp_reward", 0)),
-            "hints": []
+            "hints": payload.get("hints", [])
         }).execute()
         
         return {"status": "success", "data": response.data}
